@@ -5,6 +5,7 @@ import {
   getStats,
   getDailyStats,
   getAnalytics,
+  abandonSession,
 } from "../controllers/pomodoro.controller.js";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 
@@ -18,6 +19,7 @@ router.get("/stats-test", (req, res) => {
 
 router.post("/start", authMiddleware, startSession);
 router.post("/complete", authMiddleware, completeSession);
+router.post("/abandon", authMiddleware, abandonSession);
 router.get("/stats", authMiddleware, getStats);
 router.get("/analytics", authMiddleware, getAnalytics);
 router.get("/dailystats", authMiddleware, getDailyStats);

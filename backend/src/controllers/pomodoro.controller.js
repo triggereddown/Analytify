@@ -7,7 +7,7 @@ export const startSession = async (req, res) => {
   // remove any previous running session
   await PomodoroSession.updateMany(
     { userId, status: "running" },
-    { status: "abandoned", endTime: new Date() }
+    { status: "abandoned", endTime: new Date() },
   );
 
   // creating new session
@@ -31,6 +31,37 @@ export const completeSession = async (req, res) => {
   session.status = "completed";
   session.endTime = new Date();
   session.duration = duration;
+
+  await session.save();
+
+  res.json({ success: true });
+};
+
+//abandon
+export const abandonSession = async (req, res) => {
+  const { sessionId, duration } = req.body;
+
+  const session = await PomodoroSession.findById(sessionId);
+
+  // session existence + ownership check
+  if (!session || session.userId.toString() !== req.user.id) {
+    return res.status(404).json({ message: "Session not found" });
+  }
+
+  // prevent double updates
+  if (session.status !== "running") {
+    return res.status(400).json({
+      message: "Only running sessions can be abandoned",
+    });
+  }
+
+  session.status = "abandoned";
+  session.endTime = new Date();
+
+  // duration is optional but useful
+  if (duration !== undefined) {
+    session.duration = duration;
+  }
 
   await session.save();
 
@@ -104,7 +135,7 @@ export const getDailyStats = async (req, res) => {
   //shapingstats data to frontend friendly data
   const formatted = data.map((d) => ({
     date: `${d._id.year}-${String(d._id.month).padStart(2, "0")}-${String(
-      d._id.day
+      d._id.day,
     ).padStart(2, "0")}`,
     sessions: d.sessions,
     focusTime: d.focusTime,
