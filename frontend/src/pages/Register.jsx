@@ -201,7 +201,7 @@ const Register = () => {
   };
 
   return (
-    <div className="loginDiv bg-[#0a0a0a] h-screen w-full flex text-white font-sans overflow-hidden">
+    <div className="loginDiv bg-[#0a0a0a] h-screen w-full flex text-white  overflow-hidden">
       {/* Right Side: Visual Graphic (Now on the Left) */}
       <motion.div
         layoutId="visualBox" // Matches the ID in Login.jsx for seamless transition

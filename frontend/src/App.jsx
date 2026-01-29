@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
+import Focus from "./pages/Focus";
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -22,6 +23,14 @@ const AnimatedRoutes = () => {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/focus"
+          element={
+            <ProtectedRoute>
+              <Focus />
             </ProtectedRoute>
           }
         />
