@@ -6,10 +6,9 @@ import pomodoroRoutes from "./routes/pomodoro.routes.js";
 const app = express();
 app.use(
   cors({
-    origin: [
-      //   "http://localhost:5173",
-      "https://analytify.vercel.app/", //production
-    ],
+    origin: ["http://localhost:5173", "https://analytify.vercel.app"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   }),
 );
