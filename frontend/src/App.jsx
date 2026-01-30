@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
@@ -12,7 +12,6 @@ const AnimatedRoutes = () => {
   const location = useLocation();
 
   return (
-    // mode="wait" ensures the exiting page finishes before the new one starts
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Landing />} />
@@ -42,9 +41,7 @@ const AnimatedRoutes = () => {
 const App = () => {
   return (
     <div className="mainDiv">
-      <BrowserRouter>
-        <AnimatedRoutes />
-      </BrowserRouter>
+      <AnimatedRoutes />
     </div>
   );
 };
