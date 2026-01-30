@@ -65,12 +65,12 @@ const Dashboard = () => {
   const COLORS = ["#f97316", "#262626"];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans antialiased">
+    <div className="min-h-screen bg-[#0a0a0a] text-white  antialiased">
       <nav className="flex justify-between items-center px-8 py-6 border-b border-white/5 bg-[#0a0a0a]/50 backdrop-blur-xl sticky top-0 z-50">
         <Link to="/" className="flex items-center gap-2.5 group">
           <div className="h-5 w-5 rounded bg-orange-600 shadow-[0_0_15px_rgba(234,88,12,0.3)] group-hover:scale-110 transition-transform" />
           <span className="text-sm font-bold tracking-tight uppercase">
-            FocusMetrics
+            Analytify
           </span>
         </Link>
         <button
@@ -192,7 +192,7 @@ const Dashboard = () => {
           </div>
 
           {/* COMPLETION PIE CHART */}
-          <div className="col-span-12 lg:col-span-4 bg-[#111] border border-white/5 rounded-[2.5rem] p-10 flex flex-col items-center justify-center shadow-2xl relative">
+          <div className="col-span-12 lg:col-span-4 bg-[#111] w-[410px] border border-white/5 rounded-[2.5rem] p-4 flex flex-col items-center justify-center shadow-2xl relative">
             <div className="text-center w-full mb-4">
               <h3 className="text-lg font-medium text-gray-200">Efficiency</h3>
               <p className="text-xs text-gray-500 mt-1">

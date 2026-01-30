@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import png1 from "../assets/png1.png";
+import png2 from "../assets/png2.png";
+import png3 from "../assets/png3.png";
 
 const GridBackground = () => (
   <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -60,6 +63,36 @@ const Landing = () => {
     animate: { transition: { staggerChildren: 0.1 } },
   };
 
+  // Feature card data for the showcase section
+  const features = [
+    {
+      title: "Flow Analytics",
+      img: png1,
+      desc: "Visualize your focus sessions with high-fidelity trend lines.",
+    },
+    {
+      title: "Session Precision",
+      img: png2,
+      desc: "Track every block of deep work with granular accuracy.",
+    },
+    {
+      title: "Efficiency Ratios",
+      img: png3,
+      desc: "Identify your peak performance hours automatically.",
+    },
+  ];
+
+  const handleScroll = (e, id) => {
+    e.preventDefault();
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-orange-500/30 antialiased">
       <nav className="fixed top-0 z-50 w-full border-b border-white/5 bg-[#0a0a0a]/60 backdrop-blur-xl">
@@ -67,16 +100,17 @@ const Landing = () => {
           <div className="flex items-center gap-2.5">
             <div className="h-5 w-5 rounded bg-orange-600 shadow-[0_0_15px_rgba(234,88,12,0.4)]" />
             <span className="text-sm font-bold tracking-tight uppercase">
-              FocusMetrics
+              Analytify
             </span>
           </div>
 
           <div className="hidden items-center gap-10 text-[13px] font-medium text-gray-400 md:flex">
-            {["Product", "Pricing", "Blog"].map((item) => (
+            {["Product", "Steps", "Footer"].map((item) => (
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
-                className="transition-colors hover:text-white"
+                onClick={(e) => handleScroll(e, item.toLowerCase())}
+                className="transition-colors hover:text-white cursor-pointer"
               >
                 {item}
               </a>
@@ -156,6 +190,7 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* 3️⃣ Featured Showcase Section */}
       <section id="product" className="max-w-7xl mx-auto px-6 py-32">
         <motion.div
           variants={staggerContainer}
@@ -164,20 +199,39 @@ const Landing = () => {
           viewport={{ once: true }}
           className="grid gap-6 md:grid-cols-3"
         >
-          {[1, 2, 3].map((i) => (
+          {features.map((feature, i) => (
             <motion.div
               key={i}
               variants={fadeIn}
               className="group rounded-2xl border border-white/5 bg-[#0f0f0f] p-5 transition-all hover:border-orange-600/30 shadow-sm"
             >
-              <div className="aspect-[16/10] w-full rounded-lg bg-[#161616] ring-1 ring-inset ring-white/5 transition-colors group-hover:bg-[#1a1a1a]" />
+              {/* Box Div with Forced Sizing and Visibility check */}
+              <div className="aspect-[16/10] w-full rounded-lg bg-[#161616] ring-1 ring-inset ring-white/5 transition-colors group-hover:bg-[#1a1a1a] overflow-hidden flex items-center justify-center relative">
+                {feature.img ? (
+                  <img
+                    src={feature.img}
+                    alt={feature.title}
+                    /* Use absolute and inset-0 to force the image to fill the container regardless of initial dimensions */
+                    className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 block"
+                    /* Add an onError to handle broken paths at runtime */
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                      console.error(`Failed to load image: ${feature.img}`);
+                    }}
+                  />
+                ) : (
+                  <div className="text-orange-600/20 text-xs font-mono">
+                    IMAGE_NOT_FOUND
+                  </div>
+                )}
+              </div>
+
               <div className="mt-8">
                 <h3 className="text-sm font-semibold text-white uppercase tracking-wider">
-                  Analytics View {i}
+                  {feature.title}
                 </h3>
                 <p className="mt-3 text-[15px] text-gray-500 leading-relaxed">
-                  Precision metrics visualized through high-fidelity data
-                  streams for granular productivity tracking.
+                  {feature.desc}
                 </p>
               </div>
             </motion.div>
@@ -185,6 +239,7 @@ const Landing = () => {
         </motion.div>
       </section>
 
+      {/* ... Rest of the component remains the same ... */}
       <section className="border-y border-white/5 bg-[#0f0f0f]/20 py-20">
         <div className="max-w-7xl mx-auto px-6">
           <p className="mb-12 text-center text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">
@@ -203,23 +258,23 @@ const Landing = () => {
         </div>
       </section>
 
-      <section className="max-w-5xl mx-auto px-6 py-32">
+      <section id="steps" className="max-w-5xl mx-auto px-6 py-32">
         <div className="mb-20 text-center">
           <h2 className="text-3xl font-medium tracking-tight md:text-4xl text-white/90">
-            Simple. Effective. Deep.
+            Steps On How To Get Started
           </h2>
         </div>
         <div className="grid gap-16 md:grid-cols-3">
           {[
             {
               step: "01",
-              title: "Start a session",
-              desc: "Launch focus mode with a single click to block high-frequency distractions.",
+              title: "Session Tracking",
+              desc: "Launch focus mode with a single click to record your study sessions and pause them if needed",
             },
             {
               step: "02",
               title: "Track productivity",
-              desc: "Passive measurement of engagement levels and screen focus intervals.",
+              desc: "Once a session completes hit abandon to leave or complete to register.",
             },
             {
               step: "03",
@@ -228,7 +283,7 @@ const Landing = () => {
             },
           ].map((item, idx) => (
             <div key={idx} className="relative group">
-              <span className="text-4xl font-light text-orange-600/20 group-hover:text-orange-600/40 transition-colors">
+              <span className="text-4xl font-light text-orange-600 group-hover:text-orange-600/40 transition-colors">
                 {item.step}
               </span>
               <div className="mt-4 border-l border-white/5 pl-6">
@@ -244,7 +299,7 @@ const Landing = () => {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-6 py-24">
+      <section id="footer" className="max-w-7xl mx-auto px-6 py-24">
         <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-[#0f0f0f] p-12 text-center md:py-24">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 h-64 w-full bg-orange-600/5 blur-[120px]" />
           <div className="relative z-10 max-w-2xl mx-auto">
