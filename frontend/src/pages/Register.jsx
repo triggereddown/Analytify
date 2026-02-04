@@ -239,8 +239,8 @@ const Register = () => {
           >
             <span className="text-xs font-bold">G</span>
           </div>
-          <div className="text-sm">
-            <span className="text-gray-400">Already have an account? </span>
+          <div className="text-base">
+            <span className="text-gray-300">Already have an account? </span>
             <button
               onClick={handleLoginRedirect}
               className="text-white font-semibold border border-gray-700 px-4 py-2 rounded-full hover:bg-orange-600 transition"
@@ -271,15 +271,15 @@ const Register = () => {
             <h2 className="text-3xl font-semibold mb-2">
               Register for an account
             </h2>
-            <p className="text-gray-500">Enter your details to register.</p>
+            <p className="text-gray-400">Enter your details to register.</p>
           </div>
 
           <div className="inputfields">
             <form className="flex flex-col gap-5" onSubmit={handleRegister}>
               <div className="flex flex-col gap-2">
-                <label className="text-sm text-gray-400 ml-1">UserName</label>
+                <label className="text-base text-gray-300 ml-1">UserName</label>
                 <input
-                  className="bg-[#141414] border border-gray-800 focus:border-orange-600 outline-none rounded-full p-3 text-sm transition-all"
+                  className="bg-[#141414] border border-gray-800 focus:border-orange-600 outline-none rounded-full p-3 text-base transition-all"
                   type="text"
                   value={name}
                   placeholder="Alfred Kumar"
@@ -289,9 +289,9 @@ const Register = () => {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm text-gray-400 ml-1">Email</label>
+                <label className="text-base text-gray-300 ml-1">Email</label>
                 <input
-                  className="bg-[#141414] border border-gray-800 focus:border-orange-600 outline-none rounded-full p-3 text-sm transition-all"
+                  className="bg-[#141414] border border-gray-800 focus:border-orange-600 outline-none rounded-full p-3 text-base transition-all"
                   type="email"
                   value={email}
                   placeholder="name@company.com"
@@ -302,10 +302,10 @@ const Register = () => {
 
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-center ml-1">
-                  <label className="text-sm text-gray-400">Password</label>
+                  <label className="text-base text-gray-300">Password</label>
                 </div>
                 <input
-                  className="bg-[#141414] border border-gray-800 focus:border-orange-600 outline-none rounded-full p-3 text-sm transition-all"
+                  className="bg-[#141414] border border-gray-800 focus:border-orange-600 outline-none rounded-full p-3 text-base transition-all"
                   type="password"
                   value={password}
                   placeholder="••••••••"
@@ -324,7 +324,7 @@ const Register = () => {
           </div>
         </div>
 
-        <div className="absolute bottom-8 text-xs text-gray-600 flex justify-between w-[85%]">
+        <div className="absolute bottom-8 text-sm text-gray-400 flex justify-between w-[85%]">
           <span>© 2026 Analytify</span>
           <span>Crafted in Batcave(IN)</span>
         </div>

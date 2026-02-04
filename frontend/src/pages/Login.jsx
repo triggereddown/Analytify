@@ -42,8 +42,8 @@ const Login = () => {
           >
             <span className="text-xs font-bold">G</span>
           </div>
-          <div className="text-sm">
-            <span className="text-gray-400">New to the platform? </span>
+          <div className="text-base">
+            <span className="text-gray-300">New to the platform? </span>
             <button
               onClick={handleRegister}
               className="text-white font-semibold border border-gray-700 px-4 py-2 rounded-full hover:bg-orange-600 transition"
@@ -74,15 +74,15 @@ const Login = () => {
             <h2 className="text-3xl font-semibold mb-2">
               Login to your account
             </h2>
-            <p className="text-gray-500">Enter your details to login.</p>
+            <p className="text-gray-400">Enter your details to login.</p>
           </div>
 
           <div className="inputfields">
             <form className="flex flex-col gap-5" onSubmit={handleLogin}>
               <div className="flex flex-col gap-2">
-                <label className="text-sm text-gray-400 ml-1">Email</label>
+                <label className="text-base text-gray-300 ml-1">Email</label>
                 <input
-                  className="bg-[#141414] border border-gray-800 focus:border-orange-600 outline-none rounded-full p-3 text-sm transition-all"
+                  className="bg-[#141414] border border-gray-800 focus:border-orange-600 outline-none rounded-full p-3 text-base transition-all"
                   type="email"
                   value={email}
                   placeholder="name@company.com"
@@ -93,16 +93,16 @@ const Login = () => {
 
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-center ml-1">
-                  <label className="text-sm text-gray-400">Password</label>
+                  <label className="text-base text-gray-300">Password</label>
                   <a
                     href="#"
-                    className="text-xs text-gray-500 hover:text-orange-500"
+                    className="text-sm text-gray-400 hover:text-orange-500"
                   >
                     Forgot password?
                   </a>
                 </div>
                 <input
-                  className="bg-[#141414] border border-gray-800 focus:border-orange-600 outline-none rounded-full p-3 text-sm transition-all"
+                  className="bg-[#141414] border border-gray-800 focus:border-orange-600 outline-none rounded-full p-3 text-base transition-all"
                   type="password"
                   value={password}
                   placeholder="••••••••"
@@ -121,7 +121,7 @@ const Login = () => {
           </div>
         </div>
 
-        <div className="absolute bottom-8 text-xs text-gray-600 flex justify-between w-[85%]">
+        <div className="absolute bottom-8 text-sm text-gray-400 flex justify-between w-[85%]">
           <span>© 2026 Analytify</span>
           <span>Crafted in Batcave(IN)</span>
         </div>

@@ -47,11 +47,112 @@ const Dashboard = () => {
     navigate("/login");
   };
 
-  if (!stats || !dailyStats.length) {
+  // Show loading only while fetching, not when data is empty
+  if (!stats) {
     return (
-      <div className="h-screen flex items-center justify-center bg-[#0a0a0a] text-gray-500">
-        <div className="animate-pulse tracking-widest uppercase text-xs font-medium">
-          Synchronizing Data...
+      <div className="h-screen flex items-center justify-center bg-[#0a0a0a] text-gray-400">
+        <div className="animate-pulse tracking-widest uppercase text-sm font-medium">
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state for new users
+  if (stats.totalSessions === 0 || dailyStats.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] text-white antialiased">
+        <nav className="flex justify-between items-center px-8 py-6 border-b border-white/5 bg-[#0a0a0a]/50 backdrop-blur-xl sticky top-0 z-50">
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="h-5 w-5 rounded bg-orange-600 shadow-[0_0_15px_rgba(234,88,12,0.3)] group-hover:scale-110 transition-transform" />
+            <span className="text-base font-bold tracking-tight uppercase">
+              Analytify
+            </span>
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-orange-500 transition-colors border border-white/10 px-4 py-2 rounded-full hover:border-orange-500/50"
+          >
+            Logout
+          </button>
+        </nav>
+
+        <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-8">
+          <div className="text-center max-w-2xl">
+            <div className="mb-8">
+              <div className="w-24 h-24 bg-gradient-to-br from-orange-600 to-orange-700 rounded-full mx-auto mb-6 flex items-center justify-center shadow-[0_0_50px_rgba(234,88,12,0.3)]">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-12 h-12"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"
+                  />
+                </svg>
+              </div>
+              <h1 className="text-4xl font-bold mb-4 tracking-tight">
+                Welcome to Analytify!
+              </h1>
+              <p className="text-lg text-gray-400 mb-8 leading-relaxed">
+                You haven't started any focus sessions yet. Begin your
+                productivity journey and watch your analytics come to life.
+              </p>
+            </div>
+
+            <button
+              onClick={() => navigate("/focus")}
+              className="bg-orange-600 hover:bg-orange-700 text-white font-bold text-base rounded-full px-8 py-4 transition-all shadow-lg shadow-orange-900/30 hover:shadow-orange-900/50 hover:scale-105"
+            >
+              Start Your First Session
+            </button>
+
+            <div className="mt-12 pt-12 border-t border-white/5">
+              <p className="text-sm text-gray-400 mb-6">
+                What you'll track once you start:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-[#111] border border-white/5 rounded-2xl p-6">
+                  <div className="text-orange-500 text-3xl font-bold mb-2">
+                    📊
+                  </div>
+                  <h3 className="text-base font-semibold mb-2">
+                    Activity Trends
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    Daily session volume and focus duration
+                  </p>
+                </div>
+                <div className="bg-[#111] border border-white/5 rounded-2xl p-6">
+                  <div className="text-orange-500 text-3xl font-bold mb-2">
+                    ⏱️
+                  </div>
+                  <h3 className="text-base font-semibold mb-2">
+                    Total Sessions
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    Track completed and abandoned sessions
+                  </p>
+                </div>
+                <div className="bg-[#111] border border-white/5 rounded-2xl p-6">
+                  <div className="text-orange-500 text-3xl font-bold mb-2">
+                    ✨
+                  </div>
+                  <h3 className="text-base font-semibold mb-2">
+                    Success Rate
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    Monitor your efficiency and completion rate
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -85,13 +186,13 @@ const Dashboard = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 pb-4">
           <div>
             <h1 className="text-4xl font-medium tracking-tight">Performance</h1>
-            <p className="text-gray-500 mt-2 text-sm">
+            <p className="text-gray-400 mt-2 text-base">
               Deep work analytics for the current period.
             </p>
           </div>
           <div className="flex gap-12 border-l border-white/5 pl-8">
             <div className="flex flex-col text-center">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold mb-1">
+              <span className="text-xs uppercase tracking-[0.2em] text-gray-400 font-bold mb-1">
                 Sessions
               </span>
               <span className="text-3xl font-light tracking-tighter">
@@ -99,7 +200,7 @@ const Dashboard = () => {
               </span>
             </div>
             <div className="flex flex-col text-center">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-orange-500 font-bold mb-1">
+              <span className="text-xs uppercase tracking-[0.2em] text-orange-500 font-bold mb-1">
                 Completed
               </span>
               <span className="text-3xl font-light tracking-tighter text-orange-500">
@@ -107,10 +208,10 @@ const Dashboard = () => {
               </span>
             </div>
             <div className="flex flex-col text-center">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold mb-1">
+              <span className="text-xs uppercase tracking-[0.2em] text-gray-300 font-bold mb-1">
                 Abandoned
               </span>
-              <span className="text-3xl font-light tracking-tighter text-gray-500">
+              <span className="text-3xl font-light tracking-tighter text-gray-400">
                 {stats.abandoned}
               </span>
             </div>
@@ -124,7 +225,7 @@ const Dashboard = () => {
               <h3 className="text-lg font-medium text-gray-200">
                 Activity Trends
               </h3>
-              <p className="text-xs text-gray-500">
+              <p className="text-sm text-gray-400">
                 Daily distribution of session volume and focus duration.
               </p>
             </div>
@@ -195,7 +296,7 @@ const Dashboard = () => {
           <div className="col-span-12 lg:col-span-4 bg-[#111] w-[410px] border border-white/5 rounded-[2.5rem] p-4 flex flex-col items-center justify-center shadow-2xl relative">
             <div className="text-center w-full mb-4">
               <h3 className="text-lg font-medium text-gray-200">Efficiency</h3>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-sm text-gray-400 mt-1">
                 Success vs. Drop-off ratio
               </p>
             </div>
@@ -235,7 +336,7 @@ const Dashboard = () => {
                   )}
                   %
                 </span>
-                <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+                <span className="text-xs uppercase tracking-widest text-gray-300 font-bold">
                   Success Rate
                 </span>
               </div>
@@ -244,7 +345,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-2 gap-8 w-full mt-8 pt-8 border-t border-white/5">
               {pieData.map((entry, index) => (
                 <div key={entry.name} className="flex flex-col items-center">
-                  <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">
+                  <span className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-1">
                     {entry.name}
                   </span>
                   <span
