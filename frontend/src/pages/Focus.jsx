@@ -288,6 +288,9 @@ const Focus = () => {
                 Deep Work
               </h3>
 
+              <h3 className="text-xs uppercase tracking-[0.4em] text-orange-500/80 font-bold mb-10">
+                Timer will beep a sound upon completion
+              </h3>
               {/* TIMER DISPLAY */}
               <motion.div
                 animate={isRunning ? { scale: [1, 1.02, 1] } : {}}
