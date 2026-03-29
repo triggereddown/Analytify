@@ -173,10 +173,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion"; // Add this
-import API from "../api/api";
+import { useAuthActions } from "../features/auth/hooks/useAuthActions";
 
 const Register = () => {
   const navigate = useNavigate();
+  const { register } = useAuthActions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -184,12 +185,7 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await API.post("/auth/register", {
-        name,
-        email,
-        password,
-      });
-      navigate("/login");
+      await register({ name, email, password });
     } catch (error) {
       console.error("Registration failed", error);
     }

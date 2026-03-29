@@ -1,15 +1,13 @@
 import express from "express";
+import { authMiddleware } from "../../middleware/auth.middleware.js";
 import {
-  startSession,
-  completeSession,
-  getStats,
-  getDailyStats,
-  getAnalytics,
   abandonSession,
-} from "../controllers/pomodoro.controller.js";
-import { authMiddleware } from "../middleware/auth.middleware.js";
-
-console.log("✅ Pomodoro routes file loaded");
+  completeSession,
+  getAnalytics,
+  getDailyStats,
+  getStats,
+  startSession,
+} from "./pomodoro.controller.js";
 
 const router = express.Router();
 

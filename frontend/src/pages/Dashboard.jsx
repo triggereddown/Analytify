@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate, Link } from "react-router-dom";
-import API from "../api/api";
+import { useAuthActions } from "../features/auth/hooks/useAuthActions";
+import { useDashboardData } from "../features/pomodoro/hooks/useDashboardData";
 import {
   BarChart,
   Bar,
@@ -15,37 +16,9 @@ import {
 } from "recharts";
 
 const Dashboard = () => {
-  const [stats, setStats] = useState(null);
-  const [dailyStats, setDailyStats] = useState([]);
+  const { stats, dailyStats } = useDashboardData();
+  const { logout: handleLogout } = useAuthActions();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchStats();
-    fetchDailyStats();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      const res = await API.get("/pomodoro/stats");
-      setStats(res.data);
-    } catch (error) {
-      console.error("Error fetching stats", error);
-    }
-  };
-
-  const fetchDailyStats = async () => {
-    try {
-      const res = await API.get("/pomodoro/dailystats");
-      setDailyStats(res.data);
-    } catch (error) {
-      console.error("Error fetching daily stats", error);
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
 
   // Show loading only while fetching, not when data is empty
   if (!stats) {

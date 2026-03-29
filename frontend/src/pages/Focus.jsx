@@ -97,107 +97,22 @@
 //   }
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../api/api";
-import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const TOTAL_MINUTES = 25;
-const TOTAL_SECONDS = TOTAL_MINUTES * 60;
-
-// const TOTAL_MINUTES = 0.166;
-// const TOTAL_SECONDS = 10;
+import { useFocusSession } from "../features/pomodoro/hooks/useFocusSession";
 
 const Focus = () => {
   const navigate = useNavigate();
-
-  const [sessionId, setSessionId] = useState(null);
-  const [status, setStatus] = useState("");
-  const [secondsLeft, setSecondsLeft] = useState(TOTAL_SECONDS);
-  const [isRunning, setIsRunning] = useState(false);
-
-  const intervalRef = useRef(null);
-
-  // ✅ NEW: audio ref
-  const audioRef = useRef(null);
-
-  useEffect(() => {
-    const startSession = async () => {
-      try {
-        const res = await API.post("/pomodoro/start");
-        setSessionId(res.data._id);
-      } catch (err) {
-        console.error("Failed to start session", err);
-      }
-    };
-
-    startSession();
-
-    // ✅ NEW: preload sound
-    audioRef.current = new Audio("/beep.mp3");
-    audioRef.current.volume = 0.7;
-
-    return () => clearInterval(intervalRef.current);
-  }, []);
-
-  useEffect(() => {
-    if (!isRunning) return;
-
-    intervalRef.current = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(intervalRef.current);
-
-          // ✅ NEW: play sound when timer ends
-          if (audioRef.current) {
-            audioRef.current.play().catch(() => {});
-          }
-
-          // auto complete session
-          handleComplete();
-
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(intervalRef.current);
-  }, [isRunning]);
-
-  const elapsedMinutes = Math.floor((TOTAL_SECONDS - secondsLeft) / 60);
-  const minutes = Math.floor(secondsLeft / 60);
-  const seconds = secondsLeft % 60;
-
-  const handleStart = () => setIsRunning(true);
-  const handlePause = () => setIsRunning(false);
-
-  const handleStop = async () => {
-    if (!sessionId) return;
-    setIsRunning(false);
-    try {
-      await API.post("/pomodoro/abandon", {
-        sessionId,
-        duration: elapsedMinutes,
-      });
-      setStatus("abandoned");
-    } catch (err) {
-      console.error("Failed to abandon session", err);
-    }
-  };
-
-  const handleComplete = async () => {
-    if (!sessionId) return;
-    setIsRunning(false);
-    try {
-      await API.post("/pomodoro/complete", {
-        sessionId,
-        duration: elapsedMinutes,
-      });
-      setStatus("completed");
-    } catch (err) {
-      console.error("Failed to complete session", err);
-    }
-  };
+  const {
+    sessionId,
+    status,
+    minutes,
+    seconds,
+    isRunning,
+    start: handleStart,
+    pause: handlePause,
+    abandon: handleStop,
+    complete: handleComplete,
+  } = useFocusSession();
 
   const btnClick = { whileHover: { y: -2 }, whileTap: { scale: 0.97 } };
 

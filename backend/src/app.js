@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
-import authRoutes from "../src/routes/auth.routes.js";
-import pomodoroRoutes from "./routes/pomodoro.routes.js";
+import authRoutes from "./modules/auth/auth.routes.js";
+import pomodoroRoutes from "./modules/pomodoro/pomodoro.routes.js";
 
 const app = express();
 app.use(

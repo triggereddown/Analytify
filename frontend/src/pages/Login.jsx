@@ -2,22 +2,18 @@ import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion"; // Required for transition
-import API from "../api/api";
+import { useAuthActions } from "../features/auth/hooks/useAuthActions";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuthActions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await API.post("/auth/login", {
-        email,
-        password,
-      });
-      localStorage.setItem("token", response.data.token);
-      navigate("/dashboard");
+      await login({ email, password });
     } catch (error) {
       console.error("Login failed", error);
     }
