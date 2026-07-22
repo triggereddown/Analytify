@@ -1,0 +1,15 @@
+# Postgres is NOT run locally — this project uses a hosted Neon database
+# (see backend/.env: DATABASE_URL). Only Redis runs via Docker, for the
+# BullMQ analytics worker.
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: analytify-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:

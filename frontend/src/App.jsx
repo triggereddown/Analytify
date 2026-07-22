@@ -7,6 +7,7 @@ import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Focus from "./pages/Focus";
+import PublicProfile from "./pages/PublicProfile";
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -33,6 +34,7 @@ const AnimatedRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/u/:username" element={<PublicProfile />} />
       </Routes>
     </AnimatePresence>
   );

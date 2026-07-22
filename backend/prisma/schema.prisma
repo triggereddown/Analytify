@@ -1,0 +1,238 @@
+// Prisma schema for Analytify.
+// Migrated from MongoDB/Mongoose — see individual model comments for how
+// each Mongo shape maps onto a relational table.
+//
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+// Connection URLs live in prisma.config.ts (Prisma 7+ convention) —
+// DATABASE_URL (pooled, runtime) and DIRECT_URL (unpooled, migrations)
+// are still read from .env, just wired in there instead of here.
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+// Postgres enums instead of Mongoose's string `enum: [...]` validation —
+// invalid values are now rejected by the database itself, not just the ORM.
+
+enum SubscriptionTier {
+  free
+  premium
+}
+
+enum SubscriptionStatus {
+  none
+  active
+  past_due
+  canceled
+}
+
+enum BillingProvider {
+  stripe
+  razorpay
+}
+
+enum SessionStatus {
+  created
+  running
+  paused
+  completed
+  abandoned
+  expired
+}
+
+enum LifecycleEventType {
+  created
+  started
+  paused
+  resumed
+  completed
+  abandoned
+  expired
+}
+
+enum TaskStatus {
+  active
+  completed
+  archived
+}
+
+// A curated set rather than free-form tags — keeps the weekly "top
+// triggers" report meaningful (a handful of comparable buckets) instead
+// of fragmenting into hundreds of one-off strings. "other" plus the free
+// text `note` field on DistractionLog covers anything that doesn't fit.
+enum DistractionCategory {
+  phone
+  social_media
+  noise
+  people
+  hunger_thirst
+  fatigue
+  other
+}
+
+// ─── User ───────────────────────────────────────────────────────────────────
+// Was: models/User.js. The nested `billing` sub-document becomes its own
+// 1-to-1 table (Billing) — cleaner in a relational model than a JSON blob,
+// and lets us index/query billing state directly if needed later.
+
+model User {
+  id            String  @id @default(uuid())
+  name          String?
+  email         String  @unique
+  password      String
+  loginCount    Int     @default(0)
+  emailVerified Boolean @default(false)
+  isAdmin       Boolean @default(false)
+
+  // Public profile identity (see modules/profile, modules/public).
+  // Nullable + unique: unset usernames don't collide (mirrors Mongoose's
+  // `sparse: true` index), only claimed ones must be unique.
+  username String? @unique
+  isPublic Boolean @default(false)
+
+  // Burnout nudge dismissal state. Remembering the SCORE at dismissal
+  // (not just a timestamp) lets the nudge re-appear if burnout risk
+  // meaningfully worsens after being dismissed, rather than staying
+  // silenced indefinitely or nagging on every visit regardless of change.
+  burnoutNudgeDismissedAt    DateTime?
+  burnoutNudgeDismissedScore Int?
+
+  // Streak freeze tokens — earned by hitting streak milestones (see
+  // analytics.service.ts), spent automatically to bridge a single missed
+  // day so one bad day doesn't zero out an otherwise-long streak.
+  freezeTokens Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  billing         Billing?
+  tasks           Task[]
+  sessions        PomodoroSession[]
+  streakFreezes   StreakFreeze[]
+  distractionLogs DistractionLog[]
+
+  @@map("users")
+}
+
+// One row per UTC calendar day that was "covered" by spending a freeze
+// token, rather than genuinely having a completed session. Kept as an
+// auditable log (not just a decrementing counter) so a user's freeze
+// history can be shown/verified, and so calculateFocusStreak can treat
+// these dates as equivalent to real activity when checking for gaps.
+model StreakFreeze {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coveredDate String // "YYYY-MM-DD", UTC — the missed day this freeze bridged
+  spentAt     DateTime @default(now())
+
+  @@unique([userId, coveredDate])
+  @@index([userId])
+  @@map("streak_freezes")
+}
+
+// One-to-one with User. Was the `billing` sub-document on User.
+model Billing {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tier               SubscriptionTier   @default(free)
+  subscriptionStatus SubscriptionStatus @default(none)
+  provider           BillingProvider?
+  customerId         String?
+  subscriptionId     String?
+  currentPeriodEnd   DateTime?
+
+  @@map("billing")
+}
+
+// ─── Task ───────────────────────────────────────────────────────────────────
+// Was: models/Task.js. Deliberately minimal — see original comment there.
+
+model Task {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title                  String
+  status                 TaskStatus @default(active)
+  completedPomodoroCount Int        @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions PomodoroSession[]
+
+  @@index([userId, status])
+  @@map("tasks")
+}
+
+// ─── PomodoroSession ────────────────────────────────────────────────────────
+// Was: models/PomodoroSession.js. The embedded `lifecycleEvents` array
+// becomes its own table (LifecycleEvent) with a foreign key back to the
+// session — a proper one-to-many relation instead of a denormalized array.
+
+model PomodoroSession {
+  id     String  @id @default(uuid())
+  userId String
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId String?
+  task   Task?   @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  startTime DateTime?
+  endTime   DateTime?
+  duration  Int? // active focus time in minutes
+
+  status SessionStatus @default(created)
+
+  pausedAt            DateTime?
+  totalPausedDuration Int       @default(0) // milliseconds — see pomodoro.service.js for the (confusingly named) accounting logic
+  lastResumedAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lifecycleEvents LifecycleEvent[]
+  distractionLogs DistractionLog[]
+
+  @@index([userId, status])
+  @@index([userId, startTime])
+  @@map("pomodoro_sessions")
+}
+
+// Optional — logged when a user pauses or abandons a session, capturing
+// *why* focus broke. Linked to the session (not just the user) so a
+// distraction can always be traced back to the specific block of work it
+// interrupted, not just a loose timestamp.
+model DistractionLog {
+  id        String              @id @default(uuid())
+  userId    String
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId String
+  session   PomodoroSession     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  category  DistractionCategory
+  note      String? // optional free text, e.g. "roommate asked a question"
+  createdAt DateTime            @default(now())
+
+  @@index([userId, createdAt])
+  @@map("distraction_logs")
+}
+
+// Was: the embedded `lifecycleEventSchema` array on PomodoroSession.
+model LifecycleEvent {
+  id        String             @id @default(uuid())
+  sessionId String
+  session   PomodoroSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  type      LifecycleEventType
+  timestamp DateTime           @default(now())
+
+  @@index([sessionId])
+  @@map("lifecycle_events")
+}
