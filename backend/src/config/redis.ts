@@ -17,6 +17,9 @@ import logger from "../utils/logger.js";
 // `if (client) return client;` before use elsewhere — TS won't let you
 // call `.get()` on something that might still be `null`.
 let client: Redis | null = null;
+const REDIS_ENABLED = process.env.ENABLE_REDIS === "true" && Boolean(process.env.REDIS_URL);
+
+export const isRedisEnabled = (): boolean => REDIS_ENABLED;
 
 /**
  * Returns a singleton ioredis client.
@@ -24,6 +27,10 @@ let client: Redis | null = null;
  * This prevents app startup from failing if Redis is temporarily unavailable.
  */
 export const getRedisClient = (): Redis => {
+  if (!REDIS_ENABLED) {
+    throw new Error("Redis is disabled");
+  }
+
   if (client) return client;
 
   const commonOptions: RedisOptions = {
@@ -78,6 +85,8 @@ export const getRedisClient = (): Redis => {
  * caller to narrow the type before using the value).
  */
 export const cacheGet = async <T = unknown>(key: string): Promise<T | null> => {
+  if (!REDIS_ENABLED) return null;
+
   try {
     const raw = await getRedisClient().get(key);
     if (!raw) return null;
@@ -94,6 +103,8 @@ export const cacheGet = async <T = unknown>(key: string): Promise<T | null> => {
  * Silently fails if Redis is unavailable (returns false).
  */
 export const cacheSet = async (key: string, value: unknown, ttlSeconds = 600): Promise<boolean> => {
+  if (!REDIS_ENABLED) return false;
+
   try {
     await getRedisClient().set(key, JSON.stringify(value), "EX", ttlSeconds);
     return true;
@@ -109,6 +120,8 @@ export const cacheSet = async (key: string, value: unknown, ttlSeconds = 600): P
  * Used for cache invalidation after session state changes.
  */
 export const cacheDel = async (key: string): Promise<boolean> => {
+  if (!REDIS_ENABLED) return false;
+
   try {
     await getRedisClient().del(key);
     return true;

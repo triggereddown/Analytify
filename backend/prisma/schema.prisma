@@ -62,6 +62,16 @@ enum TaskStatus {
   archived
 }
 
+// Goals are intentionally coarse-grained: a user is usually either still
+// pursuing the goal, explicitly finished it, or consciously dropped it.
+// We avoid extra states like "paused" for now to keep the first version's
+// UI and service logic easy to reason about.
+enum GoalStatus {
+  active
+  completed
+  abandoned
+}
+
 // A curated set rather than free-form tags — keeps the weekly "top
 // triggers" report meaningful (a handful of comparable buckets) instead
 // of fragmenting into hundreds of one-off strings. "other" plus the free
@@ -116,6 +126,14 @@ model User {
   sessions        PomodoroSession[]
   streakFreezes   StreakFreeze[]
   distractionLogs DistractionLog[]
+  // Work journal entries are a separate memory system from Pomodoro
+  // sessions: a user may do meaningful work without running the timer, and
+  // we still want that evidence captured for reviews and AI reports.
+  workLogEntries WorkLogEntry[]
+  // Goals are stored separately from tasks because they are usually
+  // longer-running, higher-level ambitions like promotions or skill growth,
+  // not just "something to finish this week".
+  goals Goal[]
 
   @@map("users")
 }
@@ -169,6 +187,10 @@ model Task {
   updatedAt DateTime @updatedAt
 
   sessions PomodoroSession[]
+  // Linking journal entries back to tasks lets a user connect timer-based
+  // work with retrospective written notes without forcing every note to be
+  // tied to a Pomodoro session.
+  workLogEntries WorkLogEntry[]
 
   @@index([userId, status])
   @@map("tasks")
@@ -223,6 +245,76 @@ model DistractionLog {
 
   @@index([userId, createdAt])
   @@map("distraction_logs")
+}
+
+// A long-term, human-level objective the user is working toward. This lives
+// separately from Task because "get promoted" or "learn Kubernetes" is not a
+// box you simply finish in a day or two; it needs a durable home that many
+// work entries can point back to over time.
+model Goal {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Short label shown in lists and dropdowns â€” this is the compact name a
+  // user mentally uses for the goal even when the full description is longer.
+  title String
+  // Optional detail field for nuance like "so I can lead the platform team"
+  // or "to support my promotion case", which helps AI reports explain intent.
+  description String?
+  // We keep status explicit instead of inferring it from targetDate because a
+  // missed date does not automatically mean the goal is abandoned.
+  status GoalStatus @default(active)
+  // We store the goal's target date separately from createdAt because a goal
+  // can be created today but aimed at a deadline months out.
+  targetDate DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Progress is qualitative evidence, not a number: every linked work entry
+  // becomes part of the trail showing what the user has done toward this goal.
+  workLogEntries WorkLogEntry[]
+
+  @@index([userId, status])
+  @@map("goals")
+}
+
+// A single unit of remembered work. This is the user's "I actually did this"
+// ledger, useful both for browsing history later and for giving the AI real
+// evidence when writing review-ready summaries.
+model WorkLogEntry {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // A quick, scan-friendly headline for the work item.
+  title String
+  // Optional longer note because many work items need context beyond a title
+  // when turned into a report later.
+  description String?
+  // Free-text ticket link keeps this feature useful immediately even before
+  // any formal Jira/GitHub integration exists.
+  ticketRef String?
+  // Optional because not every work log belongs to a long-term goal, but if
+  // it does we want reports to connect that evidence automatically.
+  goalId String?
+  goal   Goal?  @relation(fields: [goalId], references: [id], onDelete: SetNull)
+  // Optional because some work logs come from timer-tracked tasks and others
+  // come from meetings, code reviews, learning, or retroactive notes.
+  taskId String?
+  task   Task?  @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  // We query by the day the work happened, not when the user typed the note,
+  // so retroactive logging still lands in the right reporting window.
+  loggedDate String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, loggedDate])
+  @@index([goalId])
+  @@index([taskId])
+  @@map("work_log_entries")
 }
 
 // Was: the embedded `lifecycleEventSchema` array on PomodoroSession.

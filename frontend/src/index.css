@@ -1,7 +1,42 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    --app-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     font-family: "Playfair Display", serif;
+    background:
+      radial-gradient(circle at top, rgba(249, 115, 22, 0.08), transparent 28%),
+      #0a0a0a;
+  }
+
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    transition:
+      transform 180ms var(--app-ease),
+      background-color 180ms var(--app-ease),
+      border-color 180ms var(--app-ease),
+      color 180ms var(--app-ease),
+      opacity 180ms var(--app-ease),
+      box-shadow 180ms var(--app-ease);
+  }
+}
+
+@layer utilities {
+  .hover-lift {
+    @apply transition-transform duration-200;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
   }
 }

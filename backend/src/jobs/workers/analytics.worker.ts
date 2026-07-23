@@ -1,15 +1,19 @@
 import { Worker, type Job } from "bullmq";
-import { getRedisClient } from "../../config/redis.js";
+import { getRedisClient, isRedisEnabled } from "../../config/redis.js";
 import analyticsProcessor from "../processors/analytics.processor.js";
 import logger from "../../utils/logger.js";
 import type { AnalyticsJobData } from "../queues/analytics.queue.js";
 
 const QUEUE_NAME = "analytics-processing";
-const connection = getRedisClient();
 
 export const startAnalyticsWorker = (): Worker<AnalyticsJobData> => {
+  if (!isRedisEnabled()) {
+    logger.info({ action: "worker_skipped_no_redis" }, "Redis is disabled; analytics worker not started");
+    throw new Error("Redis is disabled");
+  }
+
   const worker = new Worker<AnalyticsJobData>(QUEUE_NAME, analyticsProcessor, {
-    connection,
+    connection: getRedisClient(),
     concurrency: 2,
   });
 

@@ -5,6 +5,7 @@ import { useFocusSession } from "../features/pomodoro/hooks/useFocusSession";
 import { useTasks } from "../features/tasks/hooks/useTasks";
 import DistractionPrompt from "../components/DistractionPrompt";
 import UndoIcon from "@mui/icons-material/Undo";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import FlagCircleIcon from "@mui/icons-material/FlagCircle";
 import StopCircleIcon from "@mui/icons-material/StopCircle";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
@@ -23,17 +24,29 @@ const BackgroundOrbs = () => (
 );
 
 /** Top nav bar — unchanged from original */
-const TopBar = ({ onLogoClick }) => (
-  <nav className="p-8 flex items-center gap-4 relative z-20">
-    <div
-      onClick={onLogoClick}
-      className="h-8 w-8 bg-orange-600 rounded-full flex items-center justify-center cursor-pointer shadow-lg shadow-orange-600/20"
-    >
-      <span className="text-xs font-bold">G</span>
+const TopBar = ({ onLogoClick, onBackToDashboard }) => (
+  <nav className="relative z-20 flex items-center justify-between gap-4 p-8">
+    <div className="flex items-center gap-4">
+      <div
+        onClick={onLogoClick}
+        className="h-8 w-8 bg-orange-600 rounded-full flex items-center justify-center cursor-pointer shadow-lg shadow-orange-600/20"
+      >
+        <span className="text-xs font-bold">G</span>
+      </div>
+      <span className="text-xs uppercase tracking-[0.3em] text-gray-500 font-semibold">
+        Focus Mode
+      </span>
     </div>
-    <span className="text-xs uppercase tracking-[0.3em] text-gray-500 font-semibold">
-      Focus Mode
-    </span>
+
+    <motion.button
+      {...btnClick}
+      type="button"
+      onClick={onBackToDashboard}
+      className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] text-gray-300 hover:border-orange-500/30 hover:text-orange-300"
+    >
+      <ArrowBackRoundedIcon sx={{ fontSize: 16 }} />
+      Dashboard
+    </motion.button>
   </nav>
 );
 
@@ -337,7 +350,10 @@ const Focus = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] bg-gradient-to-br from-[#0a0a0a] via-[#0f0f0f] to-[#161616] text-white selection:bg-orange-500/30 overflow-hidden relative">
       <BackgroundOrbs />
-      <TopBar onLogoClick={() => navigate("/")} />
+      <TopBar
+        onLogoClick={() => navigate("/")}
+        onBackToDashboard={() => navigate("/dashboard")}
+      />
 
       <main className="flex flex-col items-center justify-center h-[calc(100vh-120px)] p-6 relative z-10">
         <AnimatePresence mode="wait">

@@ -11,6 +11,9 @@ import exportRoutes from "./modules/export/export.routes.js";
 import nudgesRoutes from "./modules/nudges/nudges.routes.js";
 import streaksRoutes from "./modules/streaks/streaks.routes.js";
 import distractionsRoutes from "./modules/distractions/distractions.routes.js";
+import aiRoutes from "./modules/ai/ai.routes.js";
+import worklogRoutes from "./modules/worklog/worklog.routes.js";
+import goalsRoutes from "./modules/goals/goals.routes.js";
 import requestLogger from "./middleware/requestLogger.middleware.js";
 import errorHandler from "./middleware/error.middleware.js";
 // TEACHING NOTE — src/types/express.d.ts needs NO import anywhere:
@@ -47,6 +50,9 @@ app.use("/api/export", exportRoutes);
 app.use("/api/nudges", nudgesRoutes);
 app.use("/api/streaks", streaksRoutes);
 app.use("/api/distractions", distractionsRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/worklog", worklogRoutes);
+app.use("/api/goals", goalsRoutes);
 
 // Centralized error handler MUST be the last middleware
 app.use(errorHandler);
