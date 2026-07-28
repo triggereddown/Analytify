@@ -23,31 +23,13 @@ const BackgroundOrbs = () => (
   </>
 );
 
-/** Top nav bar — unchanged from original */
-const TopBar = ({ onLogoClick, onBackToDashboard }) => (
-  <nav className="relative z-20 flex items-center justify-between gap-4 p-8">
-    <div className="flex items-center gap-4">
-      <div
-        onClick={onLogoClick}
-        className="h-8 w-8 bg-orange-600 rounded-full flex items-center justify-center cursor-pointer shadow-lg shadow-orange-600/20"
-      >
-        <span className="text-xs font-bold">G</span>
-      </div>
-      <span className="text-xs uppercase tracking-[0.3em] text-gray-500 font-semibold">
-        Focus Mode
-      </span>
-    </div>
-
-    <motion.button
-      {...btnClick}
-      type="button"
-      onClick={onBackToDashboard}
-      className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] text-gray-300 hover:border-orange-500/30 hover:text-orange-300"
-    >
-      <ArrowBackRoundedIcon sx={{ fontSize: 16 }} />
-      Dashboard
-    </motion.button>
-  </nav>
+/** Slim page-local label — the persistent AppShell nav now handles wayfinding */
+const TopBar = () => (
+  <div className="relative z-20 flex items-center justify-center gap-4 pt-8 pb-2">
+    <span className="text-xs uppercase tracking-[0.3em] text-gray-500 font-semibold">
+      Focus Mode
+    </span>
+  </div>
 );
 
 /**
@@ -121,7 +103,7 @@ const TaskPicker = ({ tasks, loading, selectedTaskId, onSelect, onQuickAdd }) =>
     setAdding(true);
     try {
       const task = await onQuickAdd(quickAddValue.trim());
-      onSelect(task._id);
+      onSelect(task.id);
       setQuickAddValue("");
     } catch (err) {
       console.error("Failed to add task", err);
@@ -144,7 +126,7 @@ const TaskPicker = ({ tasks, loading, selectedTaskId, onSelect, onQuickAdd }) =>
         >
           <option value="">No task — general focus session</option>
           {tasks.map((task) => (
-            <option key={task._id} value={task._id}>
+            <option key={task.id} value={task.id}>
               {task.title}
             </option>
           ))}
@@ -350,10 +332,7 @@ const Focus = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] bg-gradient-to-br from-[#0a0a0a] via-[#0f0f0f] to-[#161616] text-white selection:bg-orange-500/30 overflow-hidden relative">
       <BackgroundOrbs />
-      <TopBar
-        onLogoClick={() => navigate("/")}
-        onBackToDashboard={() => navigate("/dashboard")}
-      />
+      <TopBar />
 
       <main className="flex flex-col items-center justify-center h-[calc(100vh-120px)] p-6 relative z-10">
         <AnimatePresence mode="wait">

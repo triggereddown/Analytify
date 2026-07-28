@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: resolve(currentDir, "../.env") });
+dotenv.config({ path: resolve(currentDir, "../.env"), quiet: true });
 
 const { default: app } = await import("./app.js");
 const { default: logger } = await import("./utils/logger.js");

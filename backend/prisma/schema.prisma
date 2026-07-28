@@ -86,6 +86,33 @@ enum DistractionCategory {
   other
 }
 
+// Freeform categories the AI assigns when a note is captured. Kept small and
+// fixed (like DistractionCategory) so the memory sidebar can group notes into
+// a handful of meaningful buckets instead of fragmenting into ad-hoc labels.
+enum MemoryNoteCategory {
+  idea
+  fact
+  task
+  reflection
+  resource
+}
+
+enum LearningPathStatus {
+  active
+  completed
+  abandoned
+}
+
+// Only user/assistant are stored — tool-call plumbing (the intermediate
+// "assistant wants to call createTask" / "tool result" messages within a
+// single turn) is reconstructed transiently in ai.service.ts and never
+// persisted, since replaying raw tool-call JSON back into future prompts
+// would bloat context for no benefit once the turn is resolved.
+enum ChatMessageRole {
+  user
+  assistant
+}
+
 // ─── User ───────────────────────────────────────────────────────────────────
 // Was: models/User.js. The nested `billing` sub-document becomes its own
 // 1-to-1 table (Billing) — cleaner in a relational model than a JSON blob,
@@ -134,6 +161,11 @@ model User {
   // longer-running, higher-level ambitions like promotions or skill growth,
   // not just "something to finish this week".
   goals Goal[]
+  // The "second brain" — freeform captured thoughts, separate from Goal/Task
+  // because a memory note doesn't have to be actionable to be worth keeping.
+  memoryNotes   MemoryNote[]
+  learningPaths LearningPath[]
+  chatMessages  ChatMessage[]
 
   @@map("users")
 }
@@ -327,4 +359,89 @@ model LifecycleEvent {
 
   @@index([sessionId])
   @@map("lifecycle_events")
+}
+
+// A single captured thought — the "note this" moment. Category and tags are
+// AI-assigned at capture time (see ai.prompt.ts buildMemoryCapturePrompt) so
+// the user never has to manually file anything; they just talk.
+model MemoryNote {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content  String
+  category MemoryNoteCategory
+  // Free-form, AI-assigned labels for lightweight cross-referencing (e.g.
+  // ["backend", "solid-principles"]) — deliberately not a separate table
+  // since this is a single-user tool and a join table would be pure overhead.
+  tags String[]
+
+  // Loosely capture what the user was doing when the thought landed (e.g.
+  // "Focus session on Task X"), so recall later has situational grounding,
+  // not just the bare text.
+  sourceContext String?
+
+  createdAt  DateTime  @default(now())
+  archivedAt DateTime?
+
+  @@index([userId, createdAt])
+  @@index([userId, category])
+  @@map("memory_notes")
+}
+
+// A generated curriculum — the "teach me X in 30 days" request becomes one
+// of these plus a batch of LearningTask rows in a single AI call.
+model LearningPath {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  topic     String
+  goal      String? // the user's own words for *why*, kept for later AI check-ins
+  totalDays Int
+  status    LearningPathStatus @default(active)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks LearningTask[]
+
+  @@index([userId, status])
+  @@map("learning_paths")
+}
+
+// One checklist day within a LearningPath. Kept as individual rows (not a
+// JSON blob) so completion state, streak-style progress, and AI check-ins
+// can all query "what's done vs. pending" directly.
+model LearningTask {
+  id     String       @id @default(uuid())
+  pathId String
+  path   LearningPath @relation(fields: [pathId], references: [id], onDelete: Cascade)
+
+  dayNumber   Int
+  title       String
+  description String?
+  isDone      Boolean   @default(false)
+  doneAt      DateTime?
+
+  @@unique([pathId, dayNumber])
+  @@index([pathId])
+  @@map("learning_tasks")
+}
+
+// The persisted half of the coach conversation. Storing this is what lets a
+// user say "yes" and have it mean something — without history, every chat
+// call was a cold start with no memory of the AI's own previous question.
+model ChatMessage {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  role    ChatMessageRole
+  content String
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@map("chat_messages")
 }

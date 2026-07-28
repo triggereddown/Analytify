@@ -1,40 +1,38 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import png1 from "../assets/png1.png";
 import png2 from "../assets/png2.png";
 import png3 from "../assets/png3.png";
 
-const GridBackground = () => (
-  <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+const NAV_LINKS = ["Product", "Steps", "Footer"];
+
+/**
+ * A grid rising into a warm glow at the floor of the hero — flat, static,
+ * no rotation or fake depth. Both layers fade out on ALL edges (not just the
+ * top) so the effect dissolves into the page's black background instead of
+ * ending in a hard rectangle where the container happens to stop.
+ */
+const GridGlowFloor = () => (
+  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[85%] overflow-hidden">
     <div
-      className="absolute inset-0 opacity-[0.04]"
+      className="absolute inset-0 opacity-70"
       style={{
-        backgroundImage: `linear-gradient(#f97316 1px, transparent 1px), linear-gradient(90deg, #f97316 1px, transparent 1px)`,
-        backgroundSize: "60px 60px",
+        backgroundImage:
+          "linear-gradient(rgba(249,115,22,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(249,115,22,0.35) 1px, transparent 1px)",
+        backgroundSize: "42px 42px",
+        maskImage: "linear-gradient(to top, transparent 0%, black 25%, black 65%, transparent 100%)",
+        WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 25%, black 65%, transparent 100%)",
       }}
     />
-    <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-transparent to-[#0a0a0a]" />
-    <svg
-      className="absolute top-1/2 left-0 w-full h-64 -translate-y-1/2 opacity-[0.08]"
-      viewBox="0 0 1000 100"
-      preserveAspectRatio="none"
-    >
-      <motion.path
-        initial={{ pathLength: 0, opacity: 0 }}
-        animate={{ pathLength: 1, opacity: 1 }}
-        transition={{
-          duration: 4,
-          ease: "easeInOut",
-          repeat: Infinity,
-          repeatType: "reverse",
-        }}
-        d="M0 80 C 150 70, 350 90, 500 60 S 850 30, 1000 50"
-        fill="none"
-        stroke="#f97316"
-        strokeWidth="0.5"
-      />
-    </svg>
+    <div
+      className="absolute inset-0"
+      style={{
+        background:
+          "radial-gradient(50% 60% at 50% 82%, rgba(249,115,22,0.5) 0%, rgba(234,88,12,0.22) 40%, transparent 75%)",
+      }}
+    />
   </div>
 );
 
@@ -63,135 +61,102 @@ const Landing = () => {
     animate: { transition: { staggerChildren: 0.1 } },
   };
 
-  // Feature card data for the showcase section
   const features = [
-    {
-      title: "Flow Analytics",
-      img: png1,
-      desc: "Visualize your focus sessions with high-fidelity trend lines.",
-    },
-    {
-      title: "Session Precision",
-      img: png2,
-      desc: "Track every block of deep work with granular accuracy.",
-    },
-    {
-      title: "Efficiency Ratios",
-      img: png3,
-      desc: "Identify your peak performance hours automatically.",
-    },
+    { title: "Flow Analytics", img: png1, desc: "Visualize your focus sessions with high-fidelity trend lines." },
+    { title: "Session Precision", img: png2, desc: "Track every block of deep work with granular accuracy." },
+    { title: "Efficiency Ratios", img: png3, desc: "Identify your peak performance hours automatically." },
   ];
 
   const handleScroll = (e, id) => {
     e.preventDefault();
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-orange-500/30 antialiased">
-      <nav className="fixed top-0 z-50 w-full border-b border-white/5 bg-[#0a0a0a]/60 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-6">
-          <div className="flex items-center gap-2.5">
-            <div className="h-5 w-5 rounded bg-orange-600 shadow-[0_0_15px_rgba(234,88,12,0.4)]" />
-            <span className="text-sm font-bold tracking-tight uppercase">
-              Analytify
-            </span>
-          </div>
+      {/* ── Nav: plain text links, boxed CTA ──────────────────────────────── */}
+      <nav className="sticky top-0 z-50 w-full bg-[#0a0a0a]">
+        <div className="mx-auto flex h-[84px] max-w-7xl items-center justify-between px-6">
+          <span className="text-lg font-semibold tracking-tight">Analytify</span>
 
-          <div className="hidden items-center gap-10 text-[13px] font-medium text-gray-400 md:flex">
-            {["Product", "Steps", "Footer"].map((item) => (
+          <div className="hidden items-center gap-9 md:flex">
+            {NAV_LINKS.map((item) => (
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
                 onClick={(e) => handleScroll(e, item.toLowerCase())}
-                className="transition-colors hover:text-white cursor-pointer"
+                className="text-[14px] text-gray-300 transition-colors hover:text-white"
               >
                 {item}
               </a>
             ))}
-            {!isLoggedIn && (
-              <a href="/login" className="transition-colors hover:text-white">
-                Login
-              </a>
-            )}
           </div>
 
-          <div className="flex items-center gap-4">
-            {isLoggedIn ? (
-              <>
-                <button
-                  onClick={() => navigate("/dashboard")}
-                  className="flex items-center justify-center h-8 w-8 rounded-full bg-zinc-800 border border-white/10 hover:border-orange-500/50 transition-colors"
-                  title="Profile Dashboard"
-                >
-                  <div className="h-4 w-4 rounded-full border-2 border-orange-500/70" />
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="rounded-full border border-white/10 bg-white/5 px-5 py-2 text-[13px] font-semibold text-white hover:bg-white/10 transition-all active:scale-95"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
+          {isLoggedIn ? (
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => navigate("/register")}
-                className="rounded-full bg-orange-600 px-5 py-2 text-[13px] font-semibold text-white hover:bg-orange-700 transition-all shadow-lg shadow-orange-600/10 active:scale-95"
+                onClick={() => navigate("/dashboard")}
+                className="rounded-md bg-orange-600 px-5 py-2.5 text-[13px] font-medium text-white hover:bg-orange-700 transition-colors"
               >
-                Sign up
+                Dashboard
               </button>
-            )}
-          </div>
+              <button
+                onClick={handleLogout}
+                className="rounded-md bg-[#e8e4dc] px-5 py-2.5 text-[13px] font-medium text-black hover:bg-white transition-colors"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => navigate("/login")}
+              className="rounded-md bg-[#e8e4dc] px-5 py-2.5 text-[13px] font-medium text-black hover:bg-white transition-colors"
+            >
+              Login
+            </button>
+          )}
         </div>
       </nav>
 
-      <section className="relative flex min-h-screen items-center justify-center px-6 pt-20">
-        <GridBackground />
-        <div className="relative z-10 max-w-3xl text-center">
+      {/* ── Hero: centered statement, split typography, grid/glow floor ──── */}
+      <section className="relative overflow-hidden">
+        <div className="relative z-10 mx-auto max-w-4xl px-6 pt-20 pb-56 text-center md:pt-28">
           <motion.div {...fadeIn}>
-            <div className="mb-8 inline-flex items-center rounded-full border border-orange-500/20 bg-orange-500/5 px-3 py-1">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-orange-500">
-                v2.0 Analytics Now Live
-              </span>
-            </div>
-            <h1 className="mb-8 text-6xl font-medium tracking-tight md:text-8xl">
-              Focus Better. <br />
-              <span className="text-gray-500">Measure Deep Work.</span>
+            <h1 className="text-5xl font-medium leading-[1.1] tracking-tight text-white md:text-7xl">
+              Every focus session,
             </h1>
-            <p className="mx-auto mb-12 max-w-xl text-lg leading-relaxed text-gray-400/80">
-              A minimalist analytics platform designed for high-output teams to
-              reclaim their deep work hours and eliminate digital fatigue.
+            <h1 className="mt-1 font-serif text-5xl italic leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300 md:text-7xl">
+              turned into progress
+            </h1>
+            <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed text-gray-400">
+              Analytify turns every session into evidence — streaks, deep work
+              scores, and burnout signals that actually reflect how you work.
             </p>
-            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <motion.button
-                onClick={() => navigate("/focus")}
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.98 }}
-                className="h-12 rounded-lg bg-orange-600 px-8 text-sm font-bold text-white hover:bg-orange-700 transition-all shadow-xl shadow-orange-600/20"
+                onClick={() => navigate(isLoggedIn ? "/focus" : "/register")}
+                className="inline-flex items-center gap-2 rounded-md bg-orange-600 px-6 py-3.5 text-sm font-medium text-white hover:bg-orange-700 transition-all"
               >
                 Start Focus Session
+                <ArrowForwardRoundedIcon sx={{ fontSize: 16 }} />
               </motion.button>
-              <motion.button
+              <button
                 onClick={() => navigate("/dashboard")}
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.98 }}
-                className="h-12 rounded-lg border border-white/10 bg-white/5 px-8 text-sm font-medium text-white hover:bg-white/10 transition-all"
+                className="rounded-md bg-[#e8e4dc] px-6 py-3.5 text-sm font-medium text-black hover:bg-white transition-all"
               >
                 View Dashboard
-              </motion.button>
+              </button>
             </div>
           </motion.div>
         </div>
+
+        <GridGlowFloor />
       </section>
 
-      {/* 3️⃣ Featured Showcase Section */}
-      <section id="product" className="max-w-7xl mx-auto px-6 py-32">
+      {/* ── Feature showcase ───────────────────────────────────────────────── */}
+      <section id="product" className="mx-auto max-w-7xl px-6 py-32">
         <motion.div
           variants={staggerContainer}
           initial="initial"
@@ -199,58 +164,36 @@ const Landing = () => {
           viewport={{ once: true }}
           className="grid gap-6 md:grid-cols-3"
         >
-          {features.map((feature, i) => (
+          {features.map((feature) => (
             <motion.div
-              key={i}
+              key={feature.title}
               variants={fadeIn}
-              className="group rounded-2xl border border-white/5 bg-[#0f0f0f] p-5 transition-all hover:border-orange-600/30 shadow-sm"
+              className="group rounded-2xl border border-white/10 bg-[#0f0f0f] p-5 transition-all hover:border-orange-600/30"
             >
-              {/* Box Div with Forced Sizing and Visibility check */}
-              <div className="aspect-[16/10] w-full rounded-lg bg-[#161616] ring-1 ring-inset ring-white/5 transition-colors group-hover:bg-[#1a1a1a] overflow-hidden flex items-center justify-center relative">
-                {feature.img ? (
-                  <img
-                    src={feature.img}
-                    alt={feature.title}
-                    /* Use absolute and inset-0 to force the image to fill the container regardless of initial dimensions */
-                    className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 block"
-                    /* Add an onError to handle broken paths at runtime */
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                      console.error(`Failed to load image: ${feature.img}`);
-                    }}
-                  />
-                ) : (
-                  <div className="text-orange-600/20 text-xs font-mono">
-                    IMAGE_NOT_FOUND
-                  </div>
-                )}
+              <div className="aspect-[16/10] w-full overflow-hidden rounded-lg bg-[#161616] ring-1 ring-inset ring-white/5">
+                <img
+                  src={feature.img}
+                  alt={feature.title}
+                  className="h-full w-full object-cover opacity-80 transition-opacity duration-500 group-hover:opacity-100"
+                />
               </div>
-
               <div className="mt-8">
-                <h3 className="text-sm font-semibold text-white uppercase tracking-wider">
-                  {feature.title}
-                </h3>
-                <p className="mt-3 text-[15px] text-gray-500 leading-relaxed">
-                  {feature.desc}
-                </p>
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-white">{feature.title}</h3>
+                <p className="mt-3 text-[15px] leading-relaxed text-gray-500">{feature.desc}</p>
               </div>
             </motion.div>
           ))}
         </motion.div>
       </section>
 
-      {/* ... Rest of the component remains the same ... */}
-      <section className="border-y border-white/5 bg-[#0f0f0f]/20 py-20">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="border-y border-white/10 bg-[#0f0f0f]/20 py-20">
+        <div className="mx-auto max-w-7xl px-6">
           <p className="mb-12 text-center text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">
             Powering the next generation of builders
           </p>
           <div className="flex flex-wrap items-center justify-center gap-16 opacity-30 grayscale contrast-125 transition-all hover:opacity-100 hover:grayscale-0">
             {["Outseta", "Stripe", "Framer", "Webflow"].map((brand) => (
-              <span
-                key={brand}
-                className="text-xl font-bold tracking-tighter text-white"
-              >
+              <span key={brand} className="text-xl font-bold tracking-tighter text-white">
                 {brand}
               </span>
             ))}
@@ -258,88 +201,61 @@ const Landing = () => {
         </div>
       </section>
 
-      <section id="steps" className="max-w-5xl mx-auto px-6 py-32">
+      <section id="steps" className="mx-auto max-w-5xl px-6 py-32">
         <div className="mb-20 text-center">
-          <h2 className="text-3xl font-medium tracking-tight md:text-4xl text-white/90">
+          <h2 className="text-3xl font-medium tracking-tight text-white/90 md:text-4xl">
             Steps On How To Get Started
           </h2>
         </div>
         <div className="grid gap-16 md:grid-cols-3">
           {[
-            {
-              step: "01",
-              title: "Session Tracking",
-              desc: "Launch focus mode with a single click to record your study sessions and pause them if needed",
-            },
-            {
-              step: "02",
-              title: "Track productivity",
-              desc: "Once a session completes hit abandon to leave or complete to register.",
-            },
-            {
-              step: "03",
-              title: "View analytics",
-              desc: "Deploy automated reports focused on your peak cognitive performance hours.",
-            },
-          ].map((item, idx) => (
-            <div key={idx} className="relative group">
-              <span className="text-4xl font-light text-orange-600 group-hover:text-orange-600/40 transition-colors">
+            { step: "01", title: "Session Tracking", desc: "Launch focus mode with a single click to record your study sessions and pause them if needed." },
+            { step: "02", title: "Track productivity", desc: "Once a session completes, hit abandon to leave or complete to register it." },
+            { step: "03", title: "View analytics", desc: "Automated reports focused on your peak cognitive performance hours." },
+          ].map((item) => (
+            <div key={item.step} className="group relative">
+              <span className="text-4xl font-light text-orange-600 transition-colors group-hover:text-orange-600/40">
                 {item.step}
               </span>
-              <div className="mt-4 border-l border-white/5 pl-6">
-                <h3 className="text-base font-semibold text-white">
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-[14px] leading-relaxed text-gray-500">
-                  {item.desc}
-                </p>
+              <div className="mt-4 border-l border-white/10 pl-6">
+                <h3 className="text-base font-semibold text-white">{item.title}</h3>
+                <p className="mt-3 text-[14px] leading-relaxed text-gray-500">{item.desc}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      <section id="footer" className="max-w-7xl mx-auto px-6 py-24">
-        <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-[#0f0f0f] p-12 text-center md:py-24">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 h-64 w-full bg-orange-600/5 blur-[120px]" />
-          <div className="relative z-10 max-w-2xl mx-auto">
-            <h2 className="mb-8 text-4xl font-medium tracking-tight md:text-5xl">
-              Reclaim your focus.
-            </h2>
-            <p className="mx-auto mb-10 text-gray-500 text-lg">
-              Join 10,000+ engineers and designers tracking their deep work.
-              Built for the modern web.
+      <section id="footer" className="mx-auto max-w-7xl px-6 py-24">
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0f0f0f] p-12 text-center md:py-24">
+          <div className="absolute top-0 left-1/2 h-64 w-full -translate-x-1/2 bg-orange-600/5 blur-[120px]" />
+          <div className="relative z-10 mx-auto max-w-2xl">
+            <h2 className="mb-8 text-4xl font-medium tracking-tight md:text-5xl">Reclaim your focus.</h2>
+            <p className="mx-auto mb-10 text-lg text-gray-500">
+              Built for people who want proof of their deep work, not just a timer.
             </p>
             <motion.button
-              onClick={() => navigate("/focus")}
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.98 }}
-              className="h-14 rounded-lg bg-white px-10 text-sm font-bold text-black hover:bg-gray-200 transition-all shadow-xl"
+              onClick={() => navigate("/register")}
+              className="rounded-lg bg-white px-10 py-4 text-sm font-bold text-black shadow-xl hover:bg-gray-200 transition-all"
             >
               Get Started for Free
             </motion.button>
-            <p className="mt-8 text-[11px] font-bold text-gray-600 uppercase tracking-widest">
+            <p className="mt-8 text-[11px] font-bold uppercase tracking-widest text-gray-600">
               Free forever for individuals
             </p>
           </div>
         </div>
       </section>
 
-      <footer className="max-w-7xl mx-auto border-t border-white/5 px-6 py-16">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-[13px] text-gray-600">
-            © 2026 FocusMetrics. All rights reserved.
-          </p>
+      <footer className="mx-auto max-w-7xl border-t border-white/10 px-6 py-16">
+        <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+          <p className="text-[13px] text-gray-600">© 2026 Analytify. All rights reserved.</p>
           <div className="flex gap-8 text-[13px] text-gray-600">
-            <a href="#" className="hover:text-white transition-colors">
-              Privacy
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
-              Terms
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
-              System Status
-            </a>
+            <a href="#" className="hover:text-white transition-colors">Privacy</a>
+            <a href="#" className="hover:text-white transition-colors">Terms</a>
+            <a href="#" className="hover:text-white transition-colors">System Status</a>
           </div>
         </div>
       </footer>

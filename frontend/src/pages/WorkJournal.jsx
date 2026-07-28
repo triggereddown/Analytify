@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import LibraryBooksRoundedIcon from "@mui/icons-material/LibraryBooksRounded";
 import AddTaskRoundedIcon from "@mui/icons-material/AddTaskRounded";
@@ -72,23 +71,17 @@ const WorkJournal = () => {
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#0b0d14,#090b11)] text-white">
-      <nav className="sticky top-0 z-40 flex items-center justify-between border-b border-white/6 bg-[#090b11]/85 px-6 py-5 backdrop-blur-xl">
-        <div className="flex items-center gap-3">
+      <div className="mx-auto max-w-7xl px-5 pt-8">
+        <div className="mb-2 flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full border border-orange-400/20 bg-orange-500/10 text-orange-200">
             <LibraryBooksRoundedIcon sx={{ fontSize: 18 }} />
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-[0.28em] text-orange-200/80">Memory Layer</p>
-            <h1 className="text-lg font-semibold tracking-tight">Work Journal</h1>
+            <h1 className="text-3xl font-semibold tracking-tight">Work Journal</h1>
           </div>
         </div>
-        <Link
-          to="/dashboard"
-          className="rounded-full border border-white/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] text-gray-300 hover:border-orange-400/30 hover:text-white"
-        >
-          Back to Dashboard
-        </Link>
-      </nav>
+      </div>
 
       <div className="mx-auto grid max-w-7xl gap-6 px-5 py-6 lg:grid-cols-[1.3fr_0.7fr]">
         <div className="space-y-6">

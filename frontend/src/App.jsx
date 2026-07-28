@@ -5,11 +5,24 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AppShell from "./components/AppShell";
 import Dashboard from "./pages/Dashboard";
 import Focus from "./pages/Focus";
 import PublicProfile from "./pages/PublicProfile";
 import AiCoachPanel from "./components/AiCoachPanel";
 import WorkJournal from "./pages/WorkJournal";
+import TasksPage from "./pages/TasksPage";
+import GoalsPage from "./pages/GoalsPage";
+import MemoryPage from "./pages/MemoryPage";
+import LearningPathsPage from "./pages/LearningPathsPage";
+
+// Wraps a page in both auth-gating and the persistent nav shell so every
+// protected route gets the same top nav without repeating boilerplate.
+const Shell = ({ children }) => (
+  <ProtectedRoute>
+    <AppShell>{children}</AppShell>
+  </ProtectedRoute>
+);
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -23,25 +36,57 @@ const AnimatedRoutes = () => {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <Shell>
               <Dashboard />
-            </ProtectedRoute>
+            </Shell>
           }
         />
         <Route
           path="/focus"
           element={
-            <ProtectedRoute>
+            <Shell>
               <Focus />
-            </ProtectedRoute>
+            </Shell>
           }
         />
         <Route
           path="/work-journal"
           element={
-            <ProtectedRoute>
+            <Shell>
               <WorkJournal />
-            </ProtectedRoute>
+            </Shell>
+          }
+        />
+        <Route
+          path="/tasks"
+          element={
+            <Shell>
+              <TasksPage />
+            </Shell>
+          }
+        />
+        <Route
+          path="/goals"
+          element={
+            <Shell>
+              <GoalsPage />
+            </Shell>
+          }
+        />
+        <Route
+          path="/memory"
+          element={
+            <Shell>
+              <MemoryPage />
+            </Shell>
+          }
+        />
+        <Route
+          path="/learning-paths"
+          element={
+            <Shell>
+              <LearningPathsPage />
+            </Shell>
           }
         />
         <Route path="/u/:username" element={<PublicProfile />} />
@@ -53,7 +98,15 @@ const AnimatedRoutes = () => {
 const App = () => {
   const location = useLocation();
   const [isAiOpen, setIsAiOpen] = useState(false);
-  const protectedAssistantRoutes = new Set(["/dashboard", "/focus", "/work-journal"]);
+  const protectedAssistantRoutes = new Set([
+    "/dashboard",
+    "/focus",
+    "/work-journal",
+    "/tasks",
+    "/goals",
+    "/memory",
+    "/learning-paths",
+  ]);
   const showAssistant = protectedAssistantRoutes.has(location.pathname);
 
   return (

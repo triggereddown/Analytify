@@ -41,7 +41,7 @@ export const useTasks = () => {
 
   const completeTask = useCallback(async (taskId) => {
     await updateTaskRequest(taskId, { status: "completed" });
-    setTasks((prev) => prev.filter((t) => t._id !== taskId));
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
   }, []);
 
   return { tasks, loading, addTask, completeTask, reload };

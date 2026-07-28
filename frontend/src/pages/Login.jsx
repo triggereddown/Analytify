@@ -107,7 +107,7 @@ const Login = () => {
 
         <div className="absolute bottom-8 text-sm text-gray-400 flex justify-between w-[85%]">
           <span>© 2026 Analytify</span>
-          <span>Crafted in Batcave(IN)</span>
+          <span>Made in India</span>
         </div>
       </motion.div>
 
@@ -123,10 +123,10 @@ const Login = () => {
             <div className="absolute top-[-10%] right-[-10%] w-32 h-32 bg-orange-600/20 blur-3xl rounded-full"></div>
             <div className="p-10 text-center">
               <div className="w-20 h-2 bg-orange-600 rounded-full mx-auto mb-6"></div>
-              <h3 className="text-2xl font-bold mb-4">Login Karoww</h3>
+              <h3 className="text-2xl font-bold mb-4">Welcome back</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Take back control with our powerful Productivity analytics
-                platform that gives you 100% data ownership.
+                Take back control with a focus analytics platform that gives
+                you 100% ownership of your data.
               </p>
             </div>
           </div>
