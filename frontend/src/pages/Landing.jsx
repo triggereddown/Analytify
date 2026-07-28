@@ -10,28 +10,39 @@ const NAV_LINKS = ["Product", "Steps", "Footer"];
 
 /**
  * A grid rising into a warm glow at the floor of the hero — flat, static,
- * no rotation or fake depth. Both layers fade out on ALL edges (not just the
- * top) so the effect dissolves into the page's black background instead of
- * ending in a hard rectangle where the container happens to stop.
+ * no rotation or fake depth. Deliberately avoids `mask-image`: it renders
+ * inconsistently (fades correctly on one edge but not the other) once nested
+ * inside an absolutely-positioned, overflow-hidden ancestor — reproduced and
+ * confirmed in isolation, not just a one-off. Solid-color linear-gradient
+ * overlays that fade to transparent are the boring, reliable alternative:
+ * they cover the grid/glow's hard edges with the page's own background
+ * color, fading out, so no masking behavior is depended on at all.
  */
 const GridGlowFloor = () => (
-  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[85%] overflow-hidden">
-    <div
-      className="absolute inset-0 opacity-70"
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(249,115,22,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(249,115,22,0.35) 1px, transparent 1px)",
-        backgroundSize: "42px 42px",
-        maskImage: "linear-gradient(to top, transparent 0%, black 25%, black 65%, transparent 100%)",
-        WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 25%, black 65%, transparent 100%)",
-      }}
-    />
+  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[70%] overflow-hidden">
     <div
       className="absolute inset-0"
       style={{
         background:
-          "radial-gradient(50% 60% at 50% 82%, rgba(249,115,22,0.5) 0%, rgba(234,88,12,0.22) 40%, transparent 75%)",
+          "radial-gradient(55% 70% at 50% 100%, rgba(249,115,22,0.5) 0%, rgba(234,88,12,0.2) 40%, transparent 75%)",
       }}
+    />
+    <div
+      className="absolute inset-0 opacity-40"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(249,115,22,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(249,115,22,0.4) 1px, transparent 1px)",
+        backgroundSize: "42px 42px",
+      }}
+    />
+    {/* Solid-color fade caps — plain gradients, not masks, covering the hard top/bottom edges */}
+    <div
+      className="absolute inset-x-0 top-0 h-1/2"
+      style={{ background: "linear-gradient(to bottom, #0a0a0a 0%, transparent 100%)" }}
+    />
+    <div
+      className="absolute inset-x-0 bottom-0 h-1/4"
+      style={{ background: "linear-gradient(to top, #0a0a0a 0%, transparent 100%)" }}
     />
   </div>
 );
