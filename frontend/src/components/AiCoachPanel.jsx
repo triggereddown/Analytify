@@ -3,51 +3,20 @@ import { AnimatePresence, motion } from "framer-motion";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import ForumRoundedIcon from "@mui/icons-material/ForumRounded";
-import TimelineRoundedIcon from "@mui/icons-material/TimelineRounded";
-import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
-import WbTwilightRoundedIcon from "@mui/icons-material/WbTwilightRounded";
 import TerminalRoundedIcon from "@mui/icons-material/TerminalRounded";
 import MicRoundedIcon from "@mui/icons-material/MicRounded";
-import { getAiContext, sendAiMessage } from "../api/aiApi";
-import { matchSlashCommand, suggestSlashCommands } from "../features/chat/slashCommands";
+import { sendAiMessage } from "../api/aiApi";
+import { matchSlashCommand, suggestSlashCommands, SLASH_COMMANDS } from "../features/chat/slashCommands";
 import { useVoiceInput } from "../features/chat/useVoiceInput";
 import { MonoLabel } from "./ui";
-
-const STARTER_PROMPTS = [
-  "Plan my next 90 minutes",
-  "What should I do next?",
-  "Review my focus pattern this week",
-];
 
 const spring = { type: "spring", stiffness: 260, damping: 24 };
 
 const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
-  const [context, setContext] = useState(null);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (!isVisible) return undefined;
-
-    const loadContext = async () => {
-      try {
-        setLoading(true);
-        const data = await getAiContext();
-        setContext(data);
-      } catch (err) {
-        setError(err?.response?.data?.message || "Could not load AI context");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadContext();
-    return undefined;
-  }, [isVisible]);
 
   // Lock page scroll while the large overlay is open — otherwise the page
   // behind it scrolls along with the panel's own internal scroll areas.
@@ -60,8 +29,6 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
     };
   }, [isOpen]);
 
-  const headerInsight = useMemo(() => buildHeaderInsight(context), [context]);
-  const statCards = useMemo(() => buildStatCards(context), [context]);
   const slashSuggestions = useMemo(() => suggestSlashCommands(message), [message]);
   const [suggestionIndex, setSuggestionIndex] = useState(0);
 
@@ -202,26 +169,20 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
               className="absolute inset-0 bg-black/75 backdrop-blur-sm"
             />
 
-            {/* Roughly 70% of the viewport, per the ask — capped so it stays
-                usable on very large or very small screens. */}
+            {/* ~85% of the viewport, uncapped so it stays genuinely spacious
+                on real monitors instead of being clipped by an arbitrary
+                max-width. Header is a single compact row so the message
+                area — the part actually being used — gets the space. */}
             <motion.section
               key="coach-open"
               initial={{ opacity: 0, y: 24, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 18, scale: 0.97 }}
               transition={spring}
-              className="relative flex h-[85vh] w-[92vw] max-w-[1100px] flex-col overflow-hidden rounded-[24px] border border-white/10 bg-black shadow-[0_40px_120px_rgba(0,0,0,0.7)] md:h-[70vh] md:w-[70vw]"
+              className="relative flex h-[90vh] w-[95vw] flex-col overflow-hidden rounded-[24px] border border-white/10 bg-black shadow-[0_40px_120px_rgba(0,0,0,0.7)] md:h-[85vh] md:w-[85vw]"
             >
-              <div className="flex items-start justify-between gap-4 border-b border-white/10 px-6 py-5">
-                <div>
-                  <MonoLabel>AI Coach</MonoLabel>
-                  <h3 className="mt-3 font-serif text-2xl italic tracking-tight text-white md:text-3xl">
-                    Personal planning, not generic AI chatter.
-                  </h3>
-                  <p className="mt-2 max-w-xl text-sm leading-6 text-gray-400">
-                    {loading ? "Loading your context..." : headerInsight}
-                  </p>
-                </div>
+              <div className="flex items-center justify-between gap-4 border-b border-white/10 px-6 py-4">
+                <MonoLabel>AI Coach</MonoLabel>
                 <button
                   type="button"
                   onClick={onToggle}
@@ -231,50 +192,22 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
                 </button>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 border-b border-white/10 px-6 py-4">
-                {statCards.map((card) => (
-                  <div key={card.label} className="rounded-[12px] border border-white/10 px-4 py-3">
-                    <div className="flex items-center gap-1.5 font-dm-mono text-[10px] uppercase tracking-[0.08em] text-gray-500">
-                      <card.icon sx={{ fontSize: 13 }} className="text-orange-500" />
-                      {card.label}
-                    </div>
-                    <div className="mt-1.5 text-xl font-medium tracking-tight text-white">{card.value}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="relative flex-1 overflow-auto px-6 py-5">
+              <div className="relative flex-1 overflow-auto px-6 py-6">
                 {messages.length === 0 ? (
-                  <div className="mx-auto max-w-2xl space-y-5">
-                    <div className="rounded-[18px] border border-orange-500/30 p-5">
-                      <div className="flex items-center gap-2 font-dm-mono text-[11px] uppercase tracking-[0.08em] text-orange-400">
-                        <WbTwilightRoundedIcon sx={{ fontSize: 14 }} />
-                        Good first ask
-                      </div>
-                      <p className="mt-3 text-[15px] leading-7 text-white">
-                        Ask for a next-step plan, a reset strategy, or a realistic time block based on what your week
-                        actually looks like — or type <span className="font-dm-mono text-orange-300">/task</span>,{" "}
-                        <span className="font-dm-mono text-orange-300">/goal</span>, or{" "}
-                        <span className="font-dm-mono text-orange-300">/reminder</span> to create something directly.
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {STARTER_PROMPTS.map((prompt) => (
-                        <button
-                          key={prompt}
-                          type="button"
-                          onClick={(event) => handleSend(event, prompt)}
-                          disabled={sending}
-                          className="rounded-full border border-white/20 px-4 py-2 text-sm text-gray-300 transition-all hover:border-orange-500/40 hover:text-white disabled:opacity-60"
-                        >
-                          {prompt}
-                        </button>
-                      ))}
-                    </div>
+                  <div className="mx-auto flex max-w-3xl flex-wrap gap-2">
+                    {SLASH_COMMANDS.map((cmd) => (
+                      <button
+                        key={cmd.command}
+                        type="button"
+                        onClick={() => applySuggestion(cmd)}
+                        className="rounded-[8px] border border-white/10 px-3 py-2 font-dm-mono text-sm text-gray-300 transition-colors hover:border-orange-500/40 hover:text-white"
+                      >
+                        {cmd.label}
+                      </button>
+                    ))}
                   </div>
                 ) : (
-                  <div className="mx-auto max-w-2xl space-y-3">
+                  <div className="mx-auto max-w-3xl space-y-3">
                     {messages.map((item, index) => (
                       <motion.article
                         key={`${item.role}-${index}`}
@@ -314,7 +247,7 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
               )}
 
               <form onSubmit={handleSend} className="relative border-t border-white/10 p-5">
-                <div className="mx-auto max-w-2xl">
+                <div className="mx-auto max-w-3xl">
                   <AnimatePresence>
                     {slashSuggestions.length > 0 && (
                       <motion.div
@@ -353,25 +286,30 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
                       placeholder="Ask a question, or type / for quick commands..."
                       className="min-h-[50px] w-full resize-none bg-transparent px-3 py-3 text-sm leading-6 text-white outline-none placeholder:text-gray-500"
                     />
-                    {voiceSupported && (
-                      <button
-                        type="button"
-                        title={isListening ? "Stop listening" : "Speak instead of typing"}
-                        onClick={toggleListening}
-                        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] border transition-colors ${
-                          isListening
-                            ? "border-orange-400/50 bg-orange-500/20 text-orange-200"
-                            : "border-white/10 text-gray-300 hover:border-white/30 hover:text-white"
-                        }`}
+                    <button
+                      type="button"
+                      disabled={!voiceSupported}
+                      title={
+                        !voiceSupported
+                          ? "Voice input isn't supported in this browser — try Chrome or Edge"
+                          : isListening
+                            ? "Stop listening"
+                            : "Speak instead of typing"
+                      }
+                      onClick={toggleListening}
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] border transition-colors disabled:cursor-not-allowed disabled:opacity-30 ${
+                        isListening
+                          ? "border-orange-400/50 bg-orange-500/20 text-orange-200"
+                          : "border-white/10 text-gray-300 hover:border-white/30 hover:text-white"
+                      }`}
+                    >
+                      <motion.span
+                        animate={isListening ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+                        transition={{ duration: 1.1, repeat: isListening ? Infinity : 0 }}
                       >
-                        <motion.span
-                          animate={isListening ? { scale: [1, 1.15, 1] } : { scale: 1 }}
-                          transition={{ duration: 1.1, repeat: isListening ? Infinity : 0 }}
-                        >
-                          <MicRoundedIcon sx={{ fontSize: 18 }} />
-                        </motion.span>
-                      </button>
-                    )}
+                        <MicRoundedIcon sx={{ fontSize: 18 }} />
+                      </motion.span>
+                    </button>
                     <button
                       type="submit"
                       disabled={sending || !message.trim()}
@@ -389,43 +327,5 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
     </>
   );
 };
-
-const buildHeaderInsight = (context) => {
-  if (!context) {
-    return "Reading your current work rhythm.";
-  }
-
-  if (context.analytics?.burnoutRisk === "high") {
-    return "Your recent pattern looks intense, so this coach should prioritize recovery-aware suggestions over pressure.";
-  }
-
-  if ((context.streak?.currentStreak ?? 0) >= 5) {
-    return `You are on a ${context.streak.currentStreak}-day streak, so preserving momentum matters more than adding complexity.`;
-  }
-
-  if ((context.activeTasks?.length ?? 0) > 0) {
-    return `You have ${context.activeTasks.length} active tasks in play, which makes prioritization more useful than ambition right now.`;
-  }
-
-  return "Enough behavioral data is in place for grounded, specific suggestions.";
-};
-
-const buildStatCards = (context) => [
-  {
-    label: "Streak",
-    value: `${context?.streak?.currentStreak ?? 0}d`,
-    icon: TimelineRoundedIcon,
-  },
-  {
-    label: "Deep Work",
-    value: context?.analytics?.deepWorkScore ?? 0,
-    icon: BoltRoundedIcon,
-  },
-  {
-    label: "Tasks",
-    value: context?.activeTasks?.length ?? 0,
-    icon: ForumRoundedIcon,
-  },
-];
 
 export default AiCoachPanel;
