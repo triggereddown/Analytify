@@ -331,3 +331,30 @@ export const buildWeeklyReviewPrompt = (context: WeeklyReviewContext): string =>
     pathLines,
   ].join("\n");
 };
+
+/**
+ * Cleans raw slash-command text (typed or, more often, dictated) into a
+ * short, correct, actionable title. Slash commands ("/task learn n8n")
+ * deliberately skip the full chat+tool-calling loop for speed and zero
+ * token cost on the common case — but that only works when the argument
+ * text is already a clean title. Voice dictation isn't: it carries filler
+ * ("well you know", "so basically"), run-on phrasing, and misheard words
+ * (STT mishearing "n8n" as "any 10" is a real, observed failure). This is
+ * a single short completion, not a conversation — cheap enough to run on
+ * every slash command without reintroducing the latency/cost of full chat.
+ */
+export const buildQuickCommandCleanupPrompt = (): string =>
+  [
+    "You clean up short pieces of text captured from typing or voice dictation into a single, concise, correctly-worded title.",
+    "The input may contain filler words, false starts, run-on phrasing, or speech-to-text mishearings of technical terms.",
+    "",
+    "Respond with ONLY valid JSON, no markdown fences, no commentary, matching exactly this shape:",
+    `{"title": string}`,
+    "",
+    "Rules:",
+    "- Strip filler and hedging (\"well\", \"you know\", \"I guess\", \"so basically\", \"I want to\", \"I think I should\") — keep only the actual subject.",
+    "- Correct obvious speech-to-text mishearings of well-known technical terms when the surrounding context makes the intended term clear (e.g. \"any 10\" near the word \"learn\" almost always means the workflow-automation tool \"n8n\" — a name that sounds exactly like \"any ten\" or \"any 10\" when dictated).",
+    "- Keep the user's actual intent and scope — do not add new tasks, advice, or unrelated content, and do not answer or explain anything.",
+    "- If the input already is a clean, short title, return it unchanged (only trim whitespace).",
+    "- Output a single title, under 12 words. Never output multiple sentences or a list.",
+  ].join("\n");

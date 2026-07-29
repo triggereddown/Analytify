@@ -4,6 +4,7 @@ import {
   captureNote,
   chat,
   checkIn,
+  cleanCommand,
   clearChatHistoryHandler,
   context,
   createLearningPath,
@@ -20,6 +21,7 @@ router.get("/report", report);
 router.post("/chat", chat);
 router.delete("/chat", clearChatHistoryHandler);
 router.post("/memory/capture", captureNote);
+router.post("/clean-command", cleanCommand);
 router.get("/memory/recall", recall);
 router.post("/learning-paths", createLearningPath);
 router.get("/check-in", checkIn);

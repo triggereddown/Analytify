@@ -3,6 +3,7 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import {
   captureMemoryNote,
   chatWithAi,
+  cleanQuickCommandText,
   clearChatHistory,
   generateLearningPath,
   generateWorkReport,
@@ -47,6 +48,12 @@ export const createLearningPath = asyncHandler(async (req: Request, res: Respons
   const { topic, goal, totalDays } = req.body;
   const result = await generateLearningPath({ userId: req.user!.id, topic, goal, totalDays });
   res.status(201).json(result);
+});
+
+export const cleanCommand = asyncHandler(async (req: Request, res: Response) => {
+  const { text } = req.body;
+  const result = await cleanQuickCommandText({ rawText: text });
+  res.json(result);
 });
 
 export const recall = asyncHandler(async (req: Request, res: Response) => {

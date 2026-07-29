@@ -5,6 +5,7 @@ import {
   buildLearningPathPrompt,
   buildMemoryCapturePrompt,
   buildMemoryRecallPrompt,
+  buildQuickCommandCleanupPrompt,
   buildReportPrompt,
   buildSystemPrompt,
   buildWeeklyReviewPrompt,
@@ -205,6 +206,35 @@ export const captureMemoryNote = async ({
     tags: parsed.tags.filter((tag) => typeof tag === "string" && tag.trim().length > 0),
     sourceContext: typeof sourceContext === "string" ? sourceContext.trim() || null : null,
   });
+};
+
+/**
+ * Cleans raw slash-command text (typed, or — more often the messy case —
+ * dictated) into a short, correct title before it's handed to
+ * create_task/create_goal. Slash commands skip the full chat+tool-calling
+ * loop for speed and zero token cost, but that shortcut only holds up when
+ * the argument text is already clean; voice dictation carries filler and
+ * mishearings, so this single short completion (not a conversation) fixes
+ * that up without paying for the full chat round-trip.
+ */
+export const cleanQuickCommandText = async ({ rawText }: { rawText: unknown }): Promise<{ title: string }> => {
+  const trimmed = String(rawText ?? "").trim();
+  if (!trimmed) {
+    throw new BadRequestError("Text is required");
+  }
+
+  const systemPrompt = buildQuickCommandCleanupPrompt();
+  const raw = await sendToGrok([
+    { role: "system", content: systemPrompt },
+    { role: "user", content: trimmed },
+  ]);
+
+  const parsed = parseModelJson<{ title: string }>(raw, "quick command cleanup");
+  if (!parsed.title || typeof parsed.title !== "string") {
+    throw new BadRequestError("AI returned an incomplete cleanup result");
+  }
+
+  return { title: parsed.title.trim() };
 };
 
 /**

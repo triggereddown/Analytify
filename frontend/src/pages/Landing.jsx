@@ -9,42 +9,30 @@ import png3 from "../assets/png3.png";
 const NAV_LINKS = ["Product", "Steps", "Footer"];
 
 /**
- * A grid rising into a warm glow at the floor of the hero — flat, static,
- * no rotation or fake depth. Deliberately avoids `mask-image`: it renders
- * inconsistently (fades correctly on one edge but not the other) once nested
- * inside an absolutely-positioned, overflow-hidden ancestor — reproduced and
- * confirmed in isolation, not just a one-off. Solid-color linear-gradient
- * overlays that fade to transparent are the boring, reliable alternative:
- * they cover the grid/glow's hard edges with the page's own background
- * color, fading out, so no masking behavior is depended on at all.
+ * Ghost brand wordmark — a huge, low-opacity italic serif "Analytify"
+ * bleeding past the viewport edges as an atmospheric background layer, not
+ * a heading. Sits behind all content (z-0); replaces the earlier grid/glow
+ * floor, which doesn't belong in this identity — the mood here is an
+ * unbroken void with one typographic gesture, not a glowing texture.
  */
-const GridGlowFloor = () => (
-  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[70%] overflow-hidden">
-    <div
-      className="absolute inset-0"
-      style={{
-        background:
-          "radial-gradient(55% 70% at 50% 100%, rgba(249,115,22,0.5) 0%, rgba(234,88,12,0.2) 40%, transparent 75%)",
-      }}
-    />
-    <div
-      className="absolute inset-0 opacity-40"
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(249,115,22,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(249,115,22,0.4) 1px, transparent 1px)",
-        backgroundSize: "42px 42px",
-      }}
-    />
-    {/* Solid-color fade caps — plain gradients, not masks, covering the hard top/bottom edges */}
-    <div
-      className="absolute inset-x-0 top-0 h-1/2"
-      style={{ background: "linear-gradient(to bottom, #0a0a0a 0%, transparent 100%)" }}
-    />
-    <div
-      className="absolute inset-x-0 bottom-0 h-1/4"
-      style={{ background: "linear-gradient(to top, #0a0a0a 0%, transparent 100%)" }}
-    />
+const GhostWordmark = () => (
+  <div
+    aria-hidden="true"
+    className="pointer-events-none absolute inset-x-0 top-1/2 z-0 -translate-y-1/2 select-none overflow-hidden text-center"
+  >
+    <span
+      className="font-serif italic text-[28vw] leading-none tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white/[0.07] to-white/0"
+    >
+      Analytify
+    </span>
   </div>
+);
+
+/** Mono uppercase tag — the "metadata, not copy" marker used for nav, labels, captions. */
+const MonoLabel = ({ children, className = "" }) => (
+  <span className={`font-dm-mono text-[11px] uppercase tracking-[0.08em] text-gray-500 ${className}`}>
+    {children}
+  </span>
 );
 
 const Landing = () => {
@@ -84,19 +72,19 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-orange-500/30 antialiased">
-      {/* ── Nav: plain text links, boxed CTA ──────────────────────────────── */}
-      <nav className="sticky top-0 z-50 w-full bg-[#0a0a0a]">
-        <div className="mx-auto flex h-[84px] max-w-7xl items-center justify-between px-6">
-          <span className="text-lg font-semibold tracking-tight">Analytify</span>
+    <div className="min-h-screen bg-black text-white selection:bg-orange-500/30 antialiased">
+      {/* ── Nav: mono chrome, minimal ──────────────────────────────────────── */}
+      <nav className="sticky top-0 z-50 w-full bg-black/90 backdrop-blur-sm">
+        <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-6">
+          <span className="font-serif text-xl italic tracking-tight text-white">Analytify</span>
 
-          <div className="hidden items-center gap-9 md:flex">
+          <div className="hidden items-center gap-8 md:flex">
             {NAV_LINKS.map((item) => (
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
                 onClick={(e) => handleScroll(e, item.toLowerCase())}
-                className="text-[14px] text-gray-300 transition-colors hover:text-white"
+                className="font-dm-mono text-[12px] uppercase tracking-[0.08em] text-gray-400 transition-colors hover:text-white"
               >
                 {item}
               </a>
@@ -107,13 +95,13 @@ const Landing = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => navigate("/dashboard")}
-                className="rounded-md bg-orange-600 px-5 py-2.5 text-[13px] font-medium text-white hover:bg-orange-700 transition-colors"
+                className="rounded-full border border-white/20 px-5 py-2 font-dm-mono text-[12px] uppercase tracking-[0.08em] text-white hover:border-white/40 transition-colors"
               >
                 Dashboard
               </button>
               <button
                 onClick={handleLogout}
-                className="rounded-md bg-[#e8e4dc] px-5 py-2.5 text-[13px] font-medium text-black hover:bg-white transition-colors"
+                className="rounded-full bg-white px-5 py-2 font-dm-mono text-[12px] uppercase tracking-[0.08em] text-black hover:bg-gray-200 transition-colors"
               >
                 Logout
               </button>
@@ -121,7 +109,7 @@ const Landing = () => {
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="rounded-md bg-[#e8e4dc] px-5 py-2.5 text-[13px] font-medium text-black hover:bg-white transition-colors"
+              className="rounded-full bg-white px-5 py-2 font-dm-mono text-[12px] uppercase tracking-[0.08em] text-black hover:bg-gray-200 transition-colors"
             >
               Login
             </button>
@@ -129,33 +117,33 @@ const Landing = () => {
         </div>
       </nav>
 
-      {/* ── Hero: centered statement, split typography, grid/glow floor ──── */}
+      {/* ── Hero: ghost wordmark behind, italic serif statement, one accent word ── */}
       <section className="relative overflow-hidden">
-        <div className="relative z-10 mx-auto max-w-4xl px-6 pt-20 pb-56 text-center md:pt-28">
+        <GhostWordmark />
+
+        <div className="relative z-10 mx-auto max-w-3xl px-6 pt-28 pb-24 text-center md:pt-36">
           <motion.div {...fadeIn}>
-            <h1 className="text-5xl font-medium leading-[1.1] tracking-tight text-white md:text-7xl">
-              Every focus session,
+            <MonoLabel>Focus analytics, not another timer</MonoLabel>
+            <h1 className="mt-6 font-serif text-6xl italic leading-[1.05] tracking-tight text-white md:text-8xl">
+              Every session, <span className="text-orange-500">proven.</span>
             </h1>
-            <h1 className="mt-1 font-serif text-5xl italic leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300 md:text-7xl">
-              turned into progress
-            </h1>
-            <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed text-gray-400">
-              Analytify turns every session into evidence — streaks, deep work
+            <p className="mx-auto mt-8 max-w-lg text-[17px] leading-relaxed text-gray-400">
+              Analytify turns every focus session into evidence — streaks, deep work
               scores, and burnout signals that actually reflect how you work.
             </p>
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
               <motion.button
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate(isLoggedIn ? "/focus" : "/register")}
-                className="inline-flex items-center gap-2 rounded-md bg-orange-600 px-6 py-3.5 text-sm font-medium text-white hover:bg-orange-700 transition-all"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-dm-mono text-[12px] uppercase tracking-[0.08em] text-black hover:bg-gray-200 transition-all"
               >
                 Start Focus Session
-                <ArrowForwardRoundedIcon sx={{ fontSize: 16 }} />
+                <ArrowForwardRoundedIcon sx={{ fontSize: 15 }} />
               </motion.button>
               <button
                 onClick={() => navigate("/dashboard")}
-                className="rounded-md bg-[#e8e4dc] px-6 py-3.5 text-sm font-medium text-black hover:bg-white transition-all"
+                className="rounded-full border border-white/20 px-6 py-3 font-dm-mono text-[12px] uppercase tracking-[0.08em] text-white hover:border-white/40 transition-all"
               >
                 View Dashboard
               </button>
@@ -163,33 +151,55 @@ const Landing = () => {
           </motion.div>
         </div>
 
-        <GridGlowFloor />
+        {/* Product preview card — flat surface, one soft shadow, no fake-plastic layering */}
+        <motion.div
+          {...fadeIn}
+          transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          className="relative z-10 mx-auto max-w-4xl px-6 pb-28"
+        >
+          <div className="overflow-hidden rounded-[24px] border border-white/10 bg-[#0d0d0d] shadow-[0_30px_80px_rgba(0,0,0,0.6)]">
+            <div
+              className="w-full"
+              style={{ background: "linear-gradient(180deg, rgba(249,115,22,0.14) 0%, rgba(10,10,10,0.9) 40%)" }}
+            >
+              <img src="/dashBoard.png" alt="Analytify dashboard preview" className="w-full object-cover object-top opacity-95" />
+            </div>
+          </div>
+        </motion.div>
       </section>
 
       {/* ── Feature showcase ───────────────────────────────────────────────── */}
       <section id="product" className="mx-auto max-w-7xl px-6 py-32">
+        <MonoLabel className="block text-center">What you get</MonoLabel>
+        <h2 className="mx-auto mt-4 max-w-xl text-center font-serif text-4xl italic leading-tight tracking-tight text-white md:text-5xl">
+          The evidence behind every session
+        </h2>
+
         <motion.div
           variants={staggerContainer}
           initial="initial"
           whileInView="animate"
           viewport={{ once: true }}
-          className="grid gap-6 md:grid-cols-3"
+          className="mt-16 grid gap-6 md:grid-cols-3"
         >
           {features.map((feature) => (
             <motion.div
               key={feature.title}
               variants={fadeIn}
-              className="group rounded-2xl border border-white/10 bg-[#0f0f0f] p-5 transition-all hover:border-orange-600/30"
+              className="group rounded-[18px] border border-white/10 bg-[#0d0d0d] p-5 transition-all hover:border-orange-500/30"
             >
-              <div className="aspect-[16/10] w-full overflow-hidden rounded-lg bg-[#161616] ring-1 ring-inset ring-white/5">
+              <div
+                className="aspect-[16/10] w-full overflow-hidden rounded-[12px]"
+                style={{ background: "linear-gradient(180deg, rgba(249,115,22,0.18) 0%, rgba(13,13,13,0.9) 70%)" }}
+              >
                 <img
                   src={feature.img}
                   alt={feature.title}
                   className="h-full w-full object-cover opacity-80 transition-opacity duration-500 group-hover:opacity-100"
                 />
               </div>
-              <div className="mt-8">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-white">{feature.title}</h3>
+              <div className="mt-7">
+                <h3 className="font-dm-mono text-[12px] uppercase tracking-[0.08em] text-white">{feature.title}</h3>
                 <p className="mt-3 text-[15px] leading-relaxed text-gray-500">{feature.desc}</p>
               </div>
             </motion.div>
@@ -197,14 +207,12 @@ const Landing = () => {
         </motion.div>
       </section>
 
-      <section className="border-y border-white/10 bg-[#0f0f0f]/20 py-20">
+      <section className="border-y border-white/10 py-16">
         <div className="mx-auto max-w-7xl px-6">
-          <p className="mb-12 text-center text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">
-            Powering the next generation of builders
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-16 opacity-30 grayscale contrast-125 transition-all hover:opacity-100 hover:grayscale-0">
+          <MonoLabel className="block text-center">Powering the next generation of builders</MonoLabel>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-16 opacity-30 grayscale contrast-125 transition-all hover:opacity-100 hover:grayscale-0">
             {["Outseta", "Stripe", "Framer", "Webflow"].map((brand) => (
-              <span key={brand} className="text-xl font-bold tracking-tighter text-white">
+              <span key={brand} className="font-serif text-xl italic tracking-tight text-white">
                 {brand}
               </span>
             ))}
@@ -214,8 +222,9 @@ const Landing = () => {
 
       <section id="steps" className="mx-auto max-w-5xl px-6 py-32">
         <div className="mb-20 text-center">
-          <h2 className="text-3xl font-medium tracking-tight text-white/90 md:text-4xl">
-            Steps On How To Get Started
+          <MonoLabel className="block">How it works</MonoLabel>
+          <h2 className="mt-4 font-serif text-4xl italic tracking-tight text-white md:text-5xl">
+            Three steps to proof
           </h2>
         </div>
         <div className="grid gap-16 md:grid-cols-3">
@@ -225,11 +234,11 @@ const Landing = () => {
             { step: "03", title: "View analytics", desc: "Automated reports focused on your peak cognitive performance hours." },
           ].map((item) => (
             <div key={item.step} className="group relative">
-              <span className="text-4xl font-light text-orange-600 transition-colors group-hover:text-orange-600/40">
+              <span className="font-serif text-4xl italic text-orange-500/80 transition-colors group-hover:text-orange-500/40">
                 {item.step}
               </span>
               <div className="mt-4 border-l border-white/10 pl-6">
-                <h3 className="text-base font-semibold text-white">{item.title}</h3>
+                <h3 className="font-dm-mono text-[12px] uppercase tracking-[0.08em] text-white">{item.title}</h3>
                 <p className="mt-3 text-[14px] leading-relaxed text-gray-500">{item.desc}</p>
               </div>
             </div>
@@ -238,23 +247,24 @@ const Landing = () => {
       </section>
 
       <section id="footer" className="mx-auto max-w-7xl px-6 py-24">
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0f0f0f] p-12 text-center md:py-24">
-          <div className="absolute top-0 left-1/2 h-64 w-full -translate-x-1/2 bg-orange-600/5 blur-[120px]" />
+        <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-[#0d0d0d] p-12 text-center md:py-24">
           <div className="relative z-10 mx-auto max-w-2xl">
-            <h2 className="mb-8 text-4xl font-medium tracking-tight md:text-5xl">Reclaim your focus.</h2>
-            <p className="mx-auto mb-10 text-lg text-gray-500">
+            <h2 className="mb-8 font-serif text-5xl italic tracking-tight text-white md:text-6xl">
+              Reclaim your focus.
+            </h2>
+            <p className="mx-auto mb-10 text-[17px] text-gray-500">
               Built for people who want proof of their deep work, not just a timer.
             </p>
             <motion.button
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => navigate("/register")}
-              className="rounded-lg bg-white px-10 py-4 text-sm font-bold text-black shadow-xl hover:bg-gray-200 transition-all"
+              className="rounded-full bg-white px-10 py-3.5 font-dm-mono text-[12px] uppercase tracking-[0.08em] text-black hover:bg-gray-200 transition-all"
             >
               Get Started for Free
             </motion.button>
-            <p className="mt-8 text-[11px] font-bold uppercase tracking-widest text-gray-600">
-              Free forever for individuals
+            <p className="mt-8">
+              <MonoLabel>Free forever for individuals</MonoLabel>
             </p>
           </div>
         </div>
@@ -262,8 +272,8 @@ const Landing = () => {
 
       <footer className="mx-auto max-w-7xl border-t border-white/10 px-6 py-16">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-          <p className="text-[13px] text-gray-600">© 2026 Analytify. All rights reserved.</p>
-          <div className="flex gap-8 text-[13px] text-gray-600">
+          <p className="font-dm-mono text-[12px] text-gray-600">© 2026 Analytify. All rights reserved.</p>
+          <div className="flex gap-8 font-dm-mono text-[12px] text-gray-600">
             <a href="#" className="hover:text-white transition-colors">Privacy</a>
             <a href="#" className="hover:text-white transition-colors">Terms</a>
             <a href="#" className="hover:text-white transition-colors">System Status</a>
