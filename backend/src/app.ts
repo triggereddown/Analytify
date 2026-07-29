@@ -41,6 +41,12 @@ app.use(
 app.use(express.json());
 app.use(requestLogger);
 
+// Render (and most hosts) ping the bare root as a liveness check — without
+// this, every single check logs as a 404 since nothing else is mounted here.
+app.get("/", (_req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/pomodoro", pomodoroRoutes);
 app.use("/api/analytics", analyticsRoutes);
