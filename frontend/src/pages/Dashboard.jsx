@@ -34,7 +34,7 @@ const fadeUp = {
 
 // Same identity as Landing.jsx: black canvas, one elevated surface, hairline
 // borders, italic serif for headlines, mono chrome for labels/metadata, and
-// orange kept strictly as accent punctuation — never a button fill.
+// cream kept as the single accent — never a second color introduced.
 const CARD = "rounded-[18px] border border-white/10 bg-[#0d0d0d]";
 const CHART_TOOLTIP_STYLE = {
   backgroundColor: "#141414",
@@ -46,7 +46,7 @@ const AXIS_TICK = { fill: "#6b7280", fontSize: 11 };
 
 /** Mono uppercase tag — the "metadata, not copy" marker, matching Landing's MonoLabel. */
 const Eyebrow = ({ children }) => (
-  <span className="inline-flex items-center rounded-full border border-orange-500/60 px-3 py-1 font-dm-mono text-[11px] uppercase tracking-[0.08em] text-orange-500">
+  <span className="inline-flex items-center rounded-full border border-cream/40 px-3 py-1 font-almarai text-[11px] uppercase tracking-[0.08em] text-cream">
     {children}
   </span>
 );
@@ -65,11 +65,11 @@ const Dashboard = () => {
 
   if (loading || !stats || !advanced) {
     return (
-      <div className="flex min-h-[calc(100vh-64px)] items-center justify-center bg-black text-white">
+      <div className="flex min-h-[calc(100vh-64px)] items-center justify-center bg-black text-cream">
         <motion.div
           animate={{ opacity: [0.4, 1, 0.4] }}
           transition={{ duration: 1.6, repeat: Infinity }}
-          className="rounded-full border border-white/10 bg-[#0d0d0d] px-6 py-3 font-dm-mono text-xs uppercase tracking-[0.08em] text-gray-400"
+          className="rounded-full border border-white/10 bg-[#0d0d0d] px-6 py-3 font-almarai text-xs uppercase tracking-[0.08em] text-gray-400"
         >
           Loading your dashboard
         </motion.div>
@@ -79,13 +79,13 @@ const Dashboard = () => {
 
   if (stats.totalSessions === 0 || dailyStats.length === 0) {
     return (
-      <div className="min-h-[calc(100vh-64px)] bg-black text-white">
+      <div className="min-h-[calc(100vh-64px)] bg-black text-cream">
         <div className="mx-auto flex min-h-[calc(100vh-64px)] max-w-2xl items-center justify-center px-6">
           <motion.div {...fadeUp} transition={{ duration: 0.4 }} className="w-full text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[18px] border border-orange-500/30 bg-[#0d0d0d]">
-              <BoltRoundedIcon sx={{ fontSize: 28 }} className="text-orange-500" />
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[18px] border border-cream/30 bg-[#0d0d0d]">
+              <BoltRoundedIcon sx={{ fontSize: 28 }} className="text-cream" />
             </div>
-            <h1 className="mt-8 font-serif text-4xl italic tracking-tight text-white md:text-5xl">
+            <h1 className="mt-8 font-instrument text-4xl italic tracking-tight text-cream md:text-5xl">
               No sessions yet
             </h1>
             <p className="mx-auto mt-4 max-w-md text-base leading-7 text-gray-400">
@@ -95,7 +95,7 @@ const Dashboard = () => {
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => navigate("/focus")}
-              className="mt-9 rounded-full bg-white px-8 py-3 font-dm-mono text-[12px] uppercase tracking-[0.08em] text-black hover:bg-gray-200 transition-all"
+              className="mt-9 rounded-full bg-cream px-8 py-3 font-almarai text-sm font-medium text-black hover:bg-white transition-all"
             >
               Start a focus session
             </motion.button>
@@ -156,7 +156,7 @@ const Dashboard = () => {
   const completionRate = Math.round((stats.completed / (stats.totalSessions || 1)) * 100);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-cream">
       <div className="mx-auto max-w-7xl space-y-5 px-5 py-8 pb-32 md:px-8 lg:px-10">
         <BurnoutNudgeBanner />
 
@@ -165,7 +165,7 @@ const Dashboard = () => {
           <Eyebrow>Dashboard</Eyebrow>
           <div className="mt-4 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
-              <h1 className="font-serif text-4xl italic tracking-tight text-white md:text-5xl">
+              <h1 className="font-instrument text-4xl italic tracking-tight text-cream md:text-5xl">
                 Your focus, at a glance.
               </h1>
               <p className="mt-3 max-w-xl text-base leading-7 text-gray-400">
@@ -177,7 +177,7 @@ const Dashboard = () => {
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate("/focus")}
-                className="rounded-full bg-white px-5 py-2.5 font-dm-mono text-[12px] uppercase tracking-[0.08em] text-black hover:bg-gray-200 transition-all"
+                className="rounded-full bg-cream px-5 py-2.5 font-almarai text-sm font-medium text-black hover:bg-white transition-all"
               >
                 Start a session
               </motion.button>
@@ -186,7 +186,7 @@ const Dashboard = () => {
               </div>
               <Link
                 to="/work-journal"
-                className="inline-flex items-center rounded-full border border-white/20 px-5 py-2.5 font-dm-mono text-[12px] uppercase tracking-[0.08em] text-white hover:border-white/40 transition-all"
+                className="inline-flex items-center rounded-full border border-white/20 px-5 py-2.5 font-almarai text-[12px] uppercase tracking-[0.08em] text-cream hover:border-white/40 transition-all"
               >
                 Work Journal
               </Link>
@@ -209,11 +209,11 @@ const Dashboard = () => {
               className={`${CARD} p-5`}
             >
               <div className="flex items-center justify-between">
-                <p className="font-dm-mono text-[11px] uppercase tracking-[0.08em] text-gray-500">{card.label}</p>
-                <card.icon sx={{ fontSize: 17 }} className="text-orange-500" />
+                <p className="font-almarai text-[11px] uppercase tracking-[0.08em] text-gray-500">{card.label}</p>
+                <card.icon sx={{ fontSize: 17 }} className="text-cream" />
               </div>
               <div className="mt-4 flex items-end gap-1.5">
-                <span className="text-4xl font-medium tracking-tight text-white">{card.value}</span>
+                <span className="text-4xl font-medium tracking-tight text-cream">{card.value}</span>
                 <span className="pb-1 text-xs text-gray-500">{card.unit}</span>
               </div>
               <p className="mt-3 text-sm leading-6 text-gray-500">{card.caption}</p>
@@ -228,7 +228,7 @@ const Dashboard = () => {
           className="grid gap-4 xl:grid-cols-[1fr_1fr]"
         >
           <div className={`${CARD} p-6`}>
-            <h2 className="font-serif text-xl italic tracking-tight text-white">Session outcomes</h2>
+            <h2 className="font-instrument text-xl italic tracking-tight text-cream">Session outcomes</h2>
             <div className="relative mt-4 h-[220px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -243,22 +243,22 @@ const Dashboard = () => {
                     stroke="none"
                   >
                     {pieData.map((entry, index) => (
-                      <Cell key={entry.name} fill={index === 0 ? "#f97316" : "#3f3f46"} />
+                      <Cell key={entry.name} fill={index === 0 ? "#dedbc8" : "#3f3f46"} />
                     ))}
                   </Pie>
                   <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span className="text-4xl font-medium tracking-tight text-white">{completionRate}%</span>
-                <span className="mt-1 font-dm-mono text-[11px] uppercase tracking-[0.08em] text-gray-500">Completed</span>
+                <span className="text-4xl font-medium tracking-tight text-cream">{completionRate}%</span>
+                <span className="mt-1 font-almarai text-[11px] uppercase tracking-[0.08em] text-gray-500">Completed</span>
               </div>
             </div>
             <div className="mt-2 grid grid-cols-2 gap-3">
               {pieData.map((entry, index) => (
                 <div key={entry.name} className="rounded-[5px] border border-white/10 p-3.5">
-                  <p className="font-dm-mono text-[11px] uppercase tracking-[0.08em] text-gray-500">{entry.name}</p>
-                  <p className="mt-1.5 text-xl font-medium" style={{ color: index === 0 ? "#f97316" : "#a1a1aa" }}>
+                  <p className="font-almarai text-[11px] uppercase tracking-[0.08em] text-gray-500">{entry.name}</p>
+                  <p className="mt-1.5 text-xl font-medium" style={{ color: index === 0 ? "#dedbc8" : "#a1a1aa" }}>
                     {entry.value}
                   </p>
                 </div>
@@ -267,11 +267,11 @@ const Dashboard = () => {
           </div>
 
           <div className={`${CARD} p-6`}>
-            <h2 className="font-serif text-xl italic tracking-tight text-white">Burnout risk</h2>
+            <h2 className="font-instrument text-xl italic tracking-tight text-cream">Burnout risk</h2>
             <div className="mt-4 flex items-end gap-2">
-              <span className="text-4xl font-medium tracking-tight text-white">{advanced.burnout.burnoutScore}</span>
+              <span className="text-4xl font-medium tracking-tight text-cream">{advanced.burnout.burnoutScore}</span>
               <span className="pb-1 text-sm text-gray-500">/100</span>
-              <span className={`ml-auto inline-flex rounded-full border px-3 py-1 font-dm-mono text-[11px] uppercase tracking-[0.08em] ${riskStyle}`}>
+              <span className={`ml-auto inline-flex rounded-full border px-3 py-1 font-almarai text-[11px] uppercase tracking-[0.08em] ${riskStyle}`}>
                 {advanced.burnout.burnoutRisk}
               </span>
             </div>
@@ -297,7 +297,7 @@ const Dashboard = () => {
         {/* Trend charts — consistent axis/tooltip styling, single accent color per series */}
         <motion.section {...fadeUp} transition={{ duration: 0.4, delay: 0.12 }} className="grid grid-cols-12 gap-4">
           <div className={`${CARD} col-span-12 p-6 lg:col-span-7`}>
-            <h2 className="font-serif text-xl italic tracking-tight text-white">Daily sessions &amp; focus time</h2>
+            <h2 className="font-instrument text-xl italic tracking-tight text-cream">Daily sessions &amp; focus time</h2>
             <div className="mt-5 h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={dailyStats} margin={{ top: 6, right: 0, left: -24, bottom: 0 }}>
@@ -305,7 +305,7 @@ const Dashboard = () => {
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={AXIS_TICK} dy={10} />
                   <YAxis axisLine={false} tickLine={false} tick={AXIS_TICK} />
                   <Tooltip cursor={{ fill: "rgba(255,255,255,0.03)" }} contentStyle={CHART_TOOLTIP_STYLE} />
-                  <Bar dataKey="sessions" name="Sessions" fill="#f97316" radius={[5, 5, 0, 0]} barSize={20} />
+                  <Bar dataKey="sessions" name="Sessions" fill="#dedbc8" radius={[5, 5, 0, 0]} barSize={20} />
                   <Bar dataKey="focusTime" name="Focus minutes" fill="#52525b" radius={[5, 5, 0, 0]} barSize={20} />
                 </BarChart>
               </ResponsiveContainer>
@@ -313,7 +313,7 @@ const Dashboard = () => {
           </div>
 
           <div className={`${CARD} col-span-12 p-6 lg:col-span-5`}>
-            <h2 className="font-serif text-xl italic tracking-tight text-white">Peak focus hours</h2>
+            <h2 className="font-instrument text-xl italic tracking-tight text-cream">Peak focus hours</h2>
             {peakHoursData.length > 0 ? (
               <div className="mt-5 h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -322,7 +322,7 @@ const Dashboard = () => {
                     <XAxis dataKey="hourLabel" axisLine={false} tickLine={false} tick={AXIS_TICK} />
                     <YAxis axisLine={false} tickLine={false} tick={AXIS_TICK} />
                     <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
-                    <Bar dataKey="completedSessions" name="Completed" fill="#f97316" radius={[5, 5, 0, 0]} barSize={36} />
+                    <Bar dataKey="completedSessions" name="Completed" fill="#dedbc8" radius={[5, 5, 0, 0]} barSize={36} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -336,21 +336,21 @@ const Dashboard = () => {
 
         <motion.section {...fadeUp} transition={{ duration: 0.4, delay: 0.16 }}>
           <div className={`${CARD} p-6`}>
-            <h2 className="font-serif text-xl italic tracking-tight text-white">Focus time trend</h2>
+            <h2 className="font-instrument text-xl italic tracking-tight text-cream">Focus time trend</h2>
             <div className="mt-5 h-[280px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={dailyStats}>
                   <defs>
                     <linearGradient id="focusTrendFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#f97316" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#f97316" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#dedbc8" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="#dedbc8" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1f1f1f" />
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={AXIS_TICK} />
                   <YAxis axisLine={false} tickLine={false} tick={AXIS_TICK} />
                   <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
-                  <Area type="monotone" dataKey="focusTime" name="Focus minutes" stroke="#f97316" fill="url(#focusTrendFill)" strokeWidth={2.5} />
+                  <Area type="monotone" dataKey="focusTime" name="Focus minutes" stroke="#dedbc8" fill="url(#focusTrendFill)" strokeWidth={2.5} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

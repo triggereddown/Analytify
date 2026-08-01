@@ -47,7 +47,7 @@ const PublicProfile = () => {
 
   if (status === "not-found" || status === "error") {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center px-8">
+      <div className="min-h-screen bg-[#0a0a0a] text-cream flex items-center justify-center px-8">
         <div className="text-center max-w-md">
           <h1 className="text-3xl font-bold mb-3 tracking-tight">
             {status === "not-found" ? "Profile not found" : "Something went wrong"}
@@ -59,7 +59,7 @@ const PublicProfile = () => {
           </p>
           <Link
             to="/"
-            className="inline-block bg-orange-600 hover:bg-orange-700 text-white font-bold text-sm rounded-full px-6 py-3 transition-all"
+            className="inline-block bg-cream hover:bg-white text-black font-bold text-sm rounded-full px-6 py-3 transition-all"
           >
             Go to Analytify
           </Link>
@@ -69,15 +69,15 @@ const PublicProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white antialiased">
+    <div className="min-h-screen bg-[#0a0a0a] text-cream antialiased">
       <nav className="flex justify-between items-center px-8 py-6 border-b border-white/5 bg-[#0a0a0a]/50 backdrop-blur-xl sticky top-0 z-50">
         <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="h-5 w-5 rounded bg-orange-600 shadow-[0_0_15px_rgba(234,88,12,0.3)] group-hover:scale-110 transition-transform" />
+          <div className="h-5 w-5 rounded bg-cream shadow-[0_0_15px_rgba(222,219,200,0.3)] group-hover:scale-110 transition-transform" />
           <span className="text-sm font-bold tracking-tight uppercase">Analytify</span>
         </Link>
         <Link
           to="/register"
-          className="text-[11px] font-bold uppercase tracking-widest text-gray-500 hover:text-orange-500 transition-colors border border-white/10 px-4 py-2 rounded-full hover:border-orange-500/50"
+          className="text-[11px] font-bold uppercase tracking-widest text-gray-500 hover:text-cream transition-colors border border-white/10 px-4 py-2 rounded-full hover:border-cream/40"
         >
           Get your own profile
         </Link>
@@ -98,7 +98,7 @@ const PublicProfile = () => {
             <span className="text-xs uppercase tracking-widest text-gray-400 font-bold">
               Consistency Score
             </span>
-            <span className="text-5xl font-black tracking-tight text-orange-500 my-4">
+            <span className="text-5xl font-black tracking-tight text-cream my-4">
               {profile.consistencyScore}%
             </span>
           </div>
@@ -107,8 +107,8 @@ const PublicProfile = () => {
             <span className="text-xs uppercase tracking-widest text-gray-400 font-bold">
               Current Streak
             </span>
-            <span className="text-5xl font-black tracking-tight text-white my-4 flex items-center gap-2">
-              <LocalFireDepartmentIcon className="text-orange-500" sx={{ fontSize: 42 }} />
+            <span className="text-5xl font-black tracking-tight text-cream my-4 flex items-center gap-2">
+              <LocalFireDepartmentIcon className="text-cream" sx={{ fontSize: 42 }} />
               {profile.streak.currentStreak}
             </span>
           </div>

@@ -145,13 +145,13 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
             onClick={onToggle}
             className="group relative flex items-center gap-3 rounded-full border border-white/10 bg-[#111]/90 px-3.5 py-3 text-left shadow-[0_20px_50px_rgba(0,0,0,0.45)] backdrop-blur-xl"
           >
-            <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.22),transparent_45%)] opacity-80" />
-            <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-orange-600 text-white shadow-[0_10px_25px_rgba(234,88,12,0.35)]">
+            <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_top_left,rgba(222,219,200,0.25),transparent_45%)] opacity-80" />
+            <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-cream text-black shadow-[0_10px_25px_rgba(222,219,200,0.35)]">
               <SmartToyIcon sx={{ fontSize: 22 }} />
             </span>
             <span className="relative hidden pr-2 md:block">
-              <span className="block font-dm-mono text-[10px] uppercase tracking-[0.08em] text-orange-300">AI Coach</span>
-              <span className="mt-1 block text-[15px] font-medium text-white">Open assistant</span>
+              <span className="block font-almarai text-[10px] uppercase tracking-[0.08em] text-cream">AI Coach</span>
+              <span className="mt-1 block text-[15px] font-medium text-cream">Open assistant</span>
             </span>
           </motion.button>
         </div>
@@ -186,7 +186,7 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
                 <button
                   type="button"
                   onClick={onToggle}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 text-gray-300 transition-colors hover:border-white/30 hover:text-white"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 text-gray-300 transition-colors hover:border-white/30 hover:text-cream"
                 >
                   <CloseRoundedIcon sx={{ fontSize: 18 }} />
                 </button>
@@ -200,7 +200,7 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
                         key={cmd.command}
                         type="button"
                         onClick={() => applySuggestion(cmd)}
-                        className="rounded-[8px] border border-white/10 px-3 py-2 font-dm-mono text-sm text-gray-300 transition-colors hover:border-orange-500/40 hover:text-white"
+                        className="rounded-[8px] border border-white/10 px-3 py-2 font-almarai text-sm text-gray-300 transition-colors hover:border-cream/40 hover:text-cream"
                       >
                         {cmd.label}
                       </button>
@@ -216,11 +216,11 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
                         transition={{ duration: 0.22 }}
                         className={`max-w-[85%] rounded-[16px] border px-4 py-3 ${
                           item.role === "user"
-                            ? "ml-auto border-orange-500/30 bg-orange-500/[0.06] text-white"
+                            ? "ml-auto border-cream/30 bg-cream/[0.06] text-cream"
                             : "mr-auto border-white/10 text-gray-200"
                         }`}
                       >
-                        <div className="mb-2 font-dm-mono text-[10px] uppercase tracking-[0.08em] text-gray-500">
+                        <div className="mb-2 font-almarai text-[10px] uppercase tracking-[0.08em] text-gray-500">
                           {item.role === "user" ? "You" : "Coach"}
                         </div>
                         <div className="whitespace-pre-wrap text-sm leading-7">{item.content}</div>
@@ -265,11 +265,11 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
                               applySuggestion(cmd);
                             }}
                             className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors ${
-                              index === suggestionIndex ? "bg-orange-500/10" : "hover:bg-white/[0.04]"
+                              index === suggestionIndex ? "bg-cream/10" : "hover:bg-white/[0.04]"
                             }`}
                           >
-                            <TerminalRoundedIcon sx={{ fontSize: 15 }} className="text-orange-400" />
-                            <span className="font-dm-mono text-sm text-orange-300">{cmd.label}</span>
+                            <TerminalRoundedIcon sx={{ fontSize: 15 }} className="text-cream" />
+                            <span className="font-almarai text-sm text-cream">{cmd.label}</span>
                             <span className="text-xs text-gray-500">{cmd.description}</span>
                           </button>
                         ))}
@@ -284,7 +284,7 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
                       onChange={(e) => setMessage(e.target.value)}
                       onKeyDown={handleInputKeyDown}
                       placeholder="Ask a question, or type / for quick commands..."
-                      className="min-h-[50px] w-full resize-none bg-transparent px-3 py-3 text-sm leading-6 text-white outline-none placeholder:text-gray-500"
+                      className="min-h-[50px] w-full resize-none bg-transparent px-3 py-3 text-sm leading-6 text-cream outline-none placeholder:text-gray-500"
                     />
                     <button
                       type="button"
@@ -299,8 +299,8 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
                       onClick={toggleListening}
                       className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] border transition-colors disabled:cursor-not-allowed disabled:opacity-30 ${
                         isListening
-                          ? "border-orange-400/50 bg-orange-500/20 text-orange-200"
-                          : "border-white/10 text-gray-300 hover:border-white/30 hover:text-white"
+                          ? "border-cream/40 bg-cream/15 text-cream"
+                          : "border-white/10 text-gray-300 hover:border-white/30 hover:text-cream"
                       }`}
                     >
                       <motion.span
@@ -313,7 +313,7 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
                     <button
                       type="submit"
                       disabled={sending || !message.trim()}
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] bg-white text-black disabled:opacity-40"
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] bg-cream text-black disabled:opacity-40"
                     >
                       <SendRoundedIcon sx={{ fontSize: 18 }} />
                     </button>

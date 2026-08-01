@@ -28,7 +28,7 @@ const NAV_ITEMS = [
  * Persistent authenticated-shell navigation. Wraps every protected page so
  * the user can jump between Dashboard/Focus/Work Journal/Goals/Memory/
  * Learning Paths from anywhere, instead of the previous ad-hoc per-page
- * "Back to Dashboard" links. Matches the dark/orange pill-button language
+ * "Back to Dashboard" links. Matches the dark/cream pill-button language
  * established in Landing.jsx.
  */
 const AppShell = ({ children }) => {
@@ -40,11 +40,11 @@ const AppShell = ({ children }) => {
   const isActive = (to) => location.pathname === to;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-[#0a0a0a] text-cream">
       <nav className="sticky top-0 z-40 border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 md:px-8">
           <Link to="/dashboard" className="flex items-center gap-2.5 shrink-0">
-            <div className="h-5 w-5 rounded bg-orange-600 shadow-[0_0_15px_rgba(234,88,12,0.4)]" />
+            <div className="h-5 w-5 rounded bg-cream shadow-[0_0_15px_rgba(222,219,200,0.4)]" />
             <span className="hidden text-sm font-bold uppercase tracking-tight sm:inline">
               Analytify
             </span>
@@ -57,8 +57,8 @@ const AppShell = ({ children }) => {
                 to={item.to}
                 className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.12em] transition-all ${
                   isActive(item.to)
-                    ? "bg-orange-600 text-white shadow-[0_8px_20px_rgba(234,88,12,0.25)]"
-                    : "text-gray-400 hover:bg-white/[0.06] hover:text-white"
+                    ? "bg-cream text-black shadow-[0_8px_20px_rgba(222,219,200,0.25)]"
+                    : "text-gray-400 hover:bg-white/[0.06] hover:text-cream"
                 }`}
               >
                 <item.icon sx={{ fontSize: 16 }} />
@@ -71,13 +71,13 @@ const AppShell = ({ children }) => {
             <Link
               to="/"
               title="Back to landing page"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-gray-300 transition-all hover:border-orange-500/40 hover:text-white"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-gray-300 transition-all hover:border-cream/40 hover:text-cream"
             >
               <HomeRoundedIcon sx={{ fontSize: 17 }} />
             </Link>
             <button
               onClick={logout}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-gray-300 transition-all hover:border-orange-500/40 hover:text-white"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-gray-300 transition-all hover:border-cream/40 hover:text-cream"
             >
               <LogoutRoundedIcon sx={{ fontSize: 15 }} />
               Logout
@@ -108,7 +108,7 @@ const AppShell = ({ children }) => {
                     onClick={() => setMobileOpen(false)}
                     className={`inline-flex items-center gap-2.5 rounded-2xl px-4 py-3 text-sm font-semibold transition-all ${
                       isActive(item.to)
-                        ? "bg-orange-600 text-white"
+                        ? "bg-cream text-black"
                         : "text-gray-300 hover:bg-white/[0.06]"
                     }`}
                   >

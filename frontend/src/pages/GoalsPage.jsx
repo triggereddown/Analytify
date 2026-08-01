@@ -12,7 +12,7 @@ const STATUS_TABS = [
 ];
 
 const STATUS_PILL = {
-  active: "border-orange-500/40 text-orange-400",
+  active: "border-cream/40 text-cream",
   completed: "border-emerald-400/40 text-emerald-300",
   abandoned: "border-white/20 text-gray-400",
 };
@@ -50,11 +50,11 @@ const GoalsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-cream">
       <div className="mx-auto max-w-6xl px-5 py-10 md:px-8">
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <MonoLabel>Long-term tracks</MonoLabel>
-          <h1 className="mt-4 font-serif text-4xl italic tracking-tight text-white md:text-5xl">Goals</h1>
+          <h1 className="mt-4 font-instrument text-4xl italic tracking-tight text-cream md:text-5xl">Goals</h1>
           <p className="mt-4 max-w-xl text-base leading-7 text-gray-400">
             Objectives that your daily work log entries roll up into — real evidence, not a made-up progress bar.
           </p>
@@ -93,7 +93,7 @@ const GoalsPage = () => {
               {selectedGoal && (
                 <div className="mt-8 border-t border-white/10 pt-6">
                   <MonoLabel className="block">Linked evidence</MonoLabel>
-                  <h3 className="mt-2 text-lg font-medium text-white">{selectedGoal.title}</h3>
+                  <h3 className="mt-2 text-lg font-medium text-cream">{selectedGoal.title}</h3>
                   {selectedGoal.description && (
                     <p className="mt-2 text-sm leading-6 text-gray-400">{selectedGoal.description}</p>
                   )}
@@ -101,8 +101,8 @@ const GoalsPage = () => {
                     {selectedGoal.workLogEntries?.length ? (
                       selectedGoal.workLogEntries.map((entry) => (
                         <div key={entry.id} className="rounded-[5px] border border-white/10 p-4">
-                          <p className="text-sm font-medium text-white">{entry.title}</p>
-                          <p className="mt-1 font-dm-mono text-[11px] uppercase tracking-[0.08em] text-gray-500">
+                          <p className="text-sm font-medium text-cream">{entry.title}</p>
+                          <p className="mt-1 font-almarai text-[11px] uppercase tracking-[0.08em] text-gray-500">
                             {entry.loggedDate}
                           </p>
                         </div>
@@ -123,10 +123,10 @@ const GoalsPage = () => {
                   <button
                     key={t.key}
                     onClick={() => handleTab(t.key)}
-                    className={`rounded-full px-4 py-2 font-dm-mono text-[11px] uppercase tracking-[0.08em] transition-all ${
+                    className={`rounded-full px-4 py-2 font-almarai text-[11px] uppercase tracking-[0.08em] transition-all ${
                       tab === t.key
-                        ? "bg-white text-black"
-                        : "border border-white/20 text-gray-400 hover:text-white"
+                        ? "bg-cream text-black"
+                        : "border border-white/20 text-gray-400 hover:text-cream"
                     }`}
                   >
                     {t.label}
@@ -145,13 +145,13 @@ const GoalsPage = () => {
                   visibleGoals.map((goal) => (
                     <article
                       key={goal.id}
-                      className="rounded-[12px] border border-white/10 p-5 transition-colors hover:border-orange-500/30"
+                      className="rounded-[12px] border border-white/10 p-5 transition-colors hover:border-cream/30"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <button onClick={() => selectGoal(goal.id)} className="flex items-center gap-2.5 text-left">
-                          <FlagRoundedIcon sx={{ fontSize: 16 }} className="mt-0.5 text-orange-500" />
+                          <FlagRoundedIcon sx={{ fontSize: 16 }} className="mt-0.5 text-cream" />
                           <div>
-                            <p className="text-base font-medium text-white">{goal.title}</p>
+                            <p className="text-base font-medium text-cream">{goal.title}</p>
                             {goal.targetDate && (
                               <p className="mt-1 text-xs text-gray-500">
                                 Target {new Date(goal.targetDate).toLocaleDateString()}
@@ -159,7 +159,7 @@ const GoalsPage = () => {
                             )}
                           </div>
                         </button>
-                        <span className={`rounded-full border px-3 py-1 font-dm-mono text-[10px] uppercase tracking-[0.08em] ${STATUS_PILL[goal.status]}`}>
+                        <span className={`rounded-full border px-3 py-1 font-almarai text-[10px] uppercase tracking-[0.08em] ${STATUS_PILL[goal.status]}`}>
                           {goal.status}
                         </span>
                       </div>
@@ -168,13 +168,13 @@ const GoalsPage = () => {
                         <div className="mt-4 flex gap-2">
                           <button
                             onClick={() => changeGoalStatus(goal.id, "completed").then(() => handleTab(tab))}
-                            className="rounded-full border border-emerald-400/30 px-3 py-1.5 font-dm-mono text-[10px] uppercase tracking-[0.08em] text-emerald-300"
+                            className="rounded-full border border-emerald-400/30 px-3 py-1.5 font-almarai text-[10px] uppercase tracking-[0.08em] text-emerald-300"
                           >
                             Mark Completed
                           </button>
                           <button
                             onClick={() => changeGoalStatus(goal.id, "abandoned").then(() => handleTab(tab))}
-                            className="rounded-full border border-white/20 px-3 py-1.5 font-dm-mono text-[10px] uppercase tracking-[0.08em] text-gray-400 hover:text-white"
+                            className="rounded-full border border-white/20 px-3 py-1.5 font-almarai text-[10px] uppercase tracking-[0.08em] text-gray-400 hover:text-cream"
                           >
                             Abandon
                           </button>

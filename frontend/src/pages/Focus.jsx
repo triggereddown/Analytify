@@ -18,8 +18,8 @@ const btnClick = { whileHover: { y: -2 }, whileTap: { scale: 0.97 } };
 /** Glassy ambient background orbs — unchanged from original */
 const BackgroundOrbs = () => (
   <>
-    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-600/5 blur-[120px] rounded-full" />
-    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-600/5 blur-[120px] rounded-full" />
+    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cream/5 blur-[120px] rounded-full" />
+    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cream/5 blur-[120px] rounded-full" />
   </>
 );
 
@@ -41,7 +41,7 @@ const RecoveryBanner = () => (
     initial={{ opacity: 0, y: -10 }}
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0 }}
-    className="mb-6 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold uppercase tracking-widest text-center flex items-center justify-center gap-1.5"
+    className="mb-6 px-4 py-2 rounded-full bg-cream/10 border border-cream/20 text-cream text-xs font-semibold uppercase tracking-widest text-center flex items-center justify-center gap-1.5"
   >
     <UndoIcon sx={{ fontSize: 14 }} />
     Recovered previous session
@@ -55,7 +55,7 @@ const StateBadge = ({ sessionState }) => {
   const labels = {
     idle:      { text: "Ready",   color: "text-gray-500" },
     created:   { text: "Created", color: "text-blue-400/70" },
-    running:   { text: "Running", color: "text-orange-400" },
+    running:   { text: "Running", color: "text-cream" },
     paused:    { text: "Paused",  color: "text-yellow-400" },
     expired:   { text: "Expired", color: "text-red-400" },
     completed: { text: "Done",    color: "text-green-400" },
@@ -80,7 +80,7 @@ const TimerDisplay = ({ minutes, seconds, isRunning }) => (
   >
     {minutes}
     <span
-      className={`transition-opacity duration-500 ${isRunning ? "animate-pulse" : ""} text-orange-600`}
+      className={`transition-opacity duration-500 ${isRunning ? "animate-pulse" : ""} text-cream`}
     >
       :
     </span>
@@ -122,7 +122,7 @@ const TaskPicker = ({ tasks, loading, selectedTaskId, onSelect, onQuickAdd }) =>
         <select
           value={selectedTaskId ?? ""}
           onChange={(e) => onSelect(e.target.value || null)}
-          className="w-full bg-white/[0.03] border border-white/10 rounded-full px-4 py-3 text-sm text-white outline-none focus:border-orange-500/50 mb-3"
+          className="w-full bg-white/[0.03] border border-white/10 rounded-full px-4 py-3 text-sm text-cream outline-none focus:border-orange-500/50 mb-3"
         >
           <option value="">No task — general focus session</option>
           {tasks.map((task) => (
@@ -139,12 +139,12 @@ const TaskPicker = ({ tasks, loading, selectedTaskId, onSelect, onQuickAdd }) =>
           value={quickAddValue}
           onChange={(e) => setQuickAddValue(e.target.value)}
           placeholder="Add a new task..."
-          className="flex-1 min-w-0 bg-white/[0.03] border border-white/10 rounded-full px-4 py-2 text-xs text-white outline-none focus:border-orange-500/50"
+          className="flex-1 min-w-0 bg-white/[0.03] border border-white/10 rounded-full px-4 py-2 text-xs text-cream outline-none focus:border-orange-500/50"
         />
         <button
           type="submit"
           disabled={adding || !quickAddValue.trim()}
-          className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-orange-500 border border-white/10 hover:border-orange-500/50 rounded-full px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-cream border border-white/10 hover:border-cream/40 rounded-full px-4 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Add
         </button>
@@ -174,7 +174,7 @@ const Controls = ({ sessionState, start, pause, resume, abandon, complete, onSta
           {...btnClick}
           id="btn-start-focus"
           onClick={onStartClick}
-          className="bg-orange-600 py-5 rounded-full font-black text-sm tracking-widest uppercase shadow-xl shadow-orange-600/30 active:shadow-none"
+          className="bg-cream py-5 rounded-full font-black text-sm tracking-widest uppercase shadow-xl shadow-cream/10 active:shadow-none"
         >
           Start Focus
         </motion.button>
@@ -196,7 +196,7 @@ const Controls = ({ sessionState, start, pause, resume, abandon, complete, onSta
           {...btnClick}
           id="btn-resume"
           onClick={resume}
-          className="bg-orange-600/80 py-5 rounded-full font-black text-sm tracking-widest uppercase shadow-lg shadow-orange-600/20"
+          className="bg-cream/80 py-5 rounded-full font-black text-sm tracking-widest uppercase shadow-lg shadow-cream/10"
         >
           Resume
         </motion.button>
@@ -217,7 +217,7 @@ const Controls = ({ sessionState, start, pause, resume, abandon, complete, onSta
             {...btnClick}
             id="btn-complete"
             onClick={complete}
-            className="bg-white/[0.02] border border-white/[0.05] py-4 rounded-full font-bold text-[11px] uppercase tracking-wider text-gray-500 hover:text-orange-400 hover:border-orange-400/20 transition-all"
+            className="bg-white/[0.02] border border-white/[0.05] py-4 rounded-full font-bold text-[11px] uppercase tracking-wider text-gray-500 hover:text-cream hover:border-cream/20 transition-all"
           >
             Complete
           </motion.button>
@@ -235,7 +235,7 @@ const EndStateCard = ({ sessionState, onNewSession, onDashboard }) => {
   const config = {
     completed: {
       Icon: FlagCircleIcon,
-      iconClass: "text-orange-500",
+      iconClass: "text-cream",
       title: "Session Complete",
       body: "Outstanding discipline. You've successfully finished your deep work block.",
     },
@@ -273,7 +273,7 @@ const EndStateCard = ({ sessionState, onNewSession, onDashboard }) => {
           {...btnClick}
           id="btn-new-session"
           onClick={onNewSession}
-          className="bg-orange-600 py-4 rounded-full font-bold text-sm shadow-lg shadow-orange-600/20"
+          className="bg-cream py-4 rounded-full font-bold text-sm shadow-lg shadow-cream/10"
         >
           New Session
         </motion.button>
@@ -330,7 +330,7 @@ const Focus = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] bg-gradient-to-br from-[#0a0a0a] via-[#0f0f0f] to-[#161616] text-white selection:bg-orange-500/30 overflow-hidden relative">
+    <div className="min-h-screen bg-[#0a0a0a] bg-gradient-to-br from-[#0a0a0a] via-[#0f0f0f] to-[#161616] text-cream selection:bg-cream/30 overflow-hidden relative">
       <BackgroundOrbs />
       <TopBar />
 
@@ -360,7 +360,7 @@ const Focus = () => {
                 {recovered && <RecoveryBanner key="recovery" />}
               </AnimatePresence>
 
-              <h3 className="text-xs uppercase tracking-[0.4em] text-orange-500/80 font-bold mb-2">
+              <h3 className="text-xs uppercase tracking-[0.4em] text-cream/80 font-bold mb-2">
                 Deep Work
               </h3>
 
@@ -378,7 +378,7 @@ const Focus = () => {
               {/* Session state badge */}
               <StateBadge sessionState={sessionState} />
 
-              <h3 className="text-xs uppercase tracking-[0.4em] text-orange-500/40 font-bold mb-8">
+              <h3 className="text-xs uppercase tracking-[0.4em] text-cream/40 font-bold mb-8">
                 Timer will beep a sound upon completion
               </h3>
 
@@ -416,7 +416,7 @@ const Focus = () => {
 
       {/* Footer status line */}
       <footer className="absolute bottom-10 left-0 w-full text-center">
-        <p className="text-[10px] uppercase tracking-[0.5em] text-white/20 font-bold">
+        <p className="text-[10px] uppercase tracking-[0.5em] text-cream/20 font-bold">
           {isRunning ? "Distractions Silenced" : "System Idle"}
         </p>
       </footer>

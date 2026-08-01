@@ -39,7 +39,7 @@ const ExportButton = () => {
 
   if (status === "locked") {
     return (
-      <div className="flex items-center gap-2 font-dm-mono text-[12px] uppercase tracking-[0.08em] text-gray-500 border border-white/20 rounded-full px-5 py-2">
+      <div className="flex items-center gap-2 font-almarai text-[12px] uppercase tracking-[0.08em] text-gray-500 border border-white/20 rounded-full px-5 py-2">
         <LockIcon sx={{ fontSize: 14 }} />
         CSV export is a premium feature
       </div>
@@ -50,7 +50,7 @@ const ExportButton = () => {
     <button
       onClick={handleExport}
       disabled={status === "loading"}
-      className="flex items-center gap-2 font-dm-mono text-[12px] uppercase tracking-[0.08em] text-white border border-white/20 hover:border-white/40 rounded-full px-5 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+      className="flex items-center gap-2 font-almarai text-[12px] uppercase tracking-[0.08em] text-white border border-white/20 hover:border-white/40 rounded-full px-5 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
     >
       <DownloadIcon sx={{ fontSize: 14 }} />
       {status === "loading" ? "Exporting..." : "Export CSV"}

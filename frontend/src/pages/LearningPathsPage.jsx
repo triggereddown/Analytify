@@ -14,7 +14,7 @@ import {
 import { Card, FieldInput, FieldTextarea, MonoLabel, PrimaryButton, SectionHeading } from "../components/ui";
 
 const STATUS_PILL = {
-  active: "border-orange-500/40 text-orange-400",
+  active: "border-cream/40 text-cream",
   completed: "border-emerald-400/40 text-emerald-300",
   abandoned: "border-white/20 text-gray-400",
 };
@@ -107,11 +107,11 @@ const LearningPathsPage = () => {
     const progress = Math.round((doneCount / (activePath.tasks.length || 1)) * 100);
 
     return (
-      <div className="min-h-screen bg-black text-white">
+      <div className="min-h-screen bg-black text-cream">
         <div className="mx-auto max-w-4xl px-5 py-10 md:px-8">
           <button
             onClick={() => setActivePath(null)}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 font-dm-mono text-[11px] uppercase tracking-[0.08em] text-gray-300 hover:text-white"
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 font-almarai text-[11px] uppercase tracking-[0.08em] text-gray-300 hover:text-cream"
           >
             <ArrowBackRoundedIcon sx={{ fontSize: 15 }} />
             All Paths
@@ -120,16 +120,16 @@ const LearningPathsPage = () => {
           <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
             <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
               <div>
-                <span className={`rounded-full border px-3 py-1 font-dm-mono text-[10px] uppercase tracking-[0.08em] ${STATUS_PILL[activePath.status]}`}>
+                <span className={`rounded-full border px-3 py-1 font-almarai text-[10px] uppercase tracking-[0.08em] ${STATUS_PILL[activePath.status]}`}>
                   {activePath.status}
                 </span>
-                <h1 className="mt-4 font-serif text-4xl italic tracking-tight text-white md:text-5xl">{activePath.topic}</h1>
+                <h1 className="mt-4 font-instrument text-4xl italic tracking-tight text-cream md:text-5xl">{activePath.topic}</h1>
                 {activePath.goal && <p className="mt-3 text-gray-400">{activePath.goal}</p>}
               </div>
               {activePath.status === "active" && (
                 <button
                   onClick={() => changeStatus("abandoned")}
-                  className="rounded-full border border-white/20 px-4 py-2 font-dm-mono text-[11px] uppercase tracking-[0.08em] text-gray-400 hover:text-white"
+                  className="rounded-full border border-white/20 px-4 py-2 font-almarai text-[11px] uppercase tracking-[0.08em] text-gray-400 hover:text-cream"
                 >
                   Abandon Path
                 </button>
@@ -137,7 +137,7 @@ const LearningPathsPage = () => {
             </div>
 
             <Card className="mb-8 p-5">
-              <div className="mb-2 flex items-center justify-between font-dm-mono text-[11px] uppercase tracking-[0.08em] text-gray-500">
+              <div className="mb-2 flex items-center justify-between font-almarai text-[11px] uppercase tracking-[0.08em] text-gray-500">
                 <span>Progress</span>
                 <span>{doneCount}/{activePath.tasks.length} days</span>
               </div>
@@ -146,7 +146,7 @@ const LearningPathsPage = () => {
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 0.6, ease: "easeOut" }}
-                  className="h-full rounded-full bg-orange-500"
+                  className="h-full rounded-full bg-cream"
                 />
               </div>
             </Card>
@@ -162,7 +162,7 @@ const LearningPathsPage = () => {
                     className={`flex w-full items-start gap-4 rounded-[12px] border p-4 text-left transition-all ${
                       task.isDone
                         ? "border-emerald-400/20 bg-emerald-500/[0.03]"
-                        : "border-white/10 hover:border-orange-500/30"
+                        : "border-white/10 hover:border-cream/30"
                     }`}
                   >
                     {task.isDone ? (
@@ -171,8 +171,8 @@ const LearningPathsPage = () => {
                       <RadioButtonUncheckedRoundedIcon sx={{ fontSize: 22 }} className="mt-0.5 shrink-0 text-gray-600" />
                     )}
                     <div>
-                      <p className="font-dm-mono text-[10px] uppercase tracking-[0.08em] text-gray-500">Day {task.dayNumber}</p>
-                      <p className={`mt-1 text-base font-medium ${task.isDone ? "text-gray-400 line-through" : "text-white"}`}>
+                      <p className="font-almarai text-[10px] uppercase tracking-[0.08em] text-gray-500">Day {task.dayNumber}</p>
+                      <p className={`mt-1 text-base font-medium ${task.isDone ? "text-gray-400 line-through" : "text-cream"}`}>
                         {task.title}
                       </p>
                       {task.description && (
@@ -189,11 +189,11 @@ const LearningPathsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-cream">
       <div className="mx-auto max-w-6xl px-5 py-10 md:px-8">
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <MonoLabel>Guided curricula</MonoLabel>
-          <h1 className="mt-4 font-serif text-4xl italic tracking-tight text-white md:text-5xl">Learning Paths</h1>
+          <h1 className="mt-4 font-instrument text-4xl italic tracking-tight text-cream md:text-5xl">Learning Paths</h1>
           <p className="mt-4 max-w-xl text-base leading-7 text-gray-400">
             Day-by-day plans generated for whatever you're trying to learn, with a checklist that keeps you honest.
           </p>
@@ -236,7 +236,7 @@ const LearningPathsPage = () => {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
             <Card className="p-6">
               <div className="mb-5 flex items-center gap-3">
-                <SchoolRoundedIcon sx={{ fontSize: 18 }} className="text-orange-500" />
+                <SchoolRoundedIcon sx={{ fontSize: 18 }} className="text-cream" />
                 <SectionHeading>Your paths</SectionHeading>
               </div>
 
@@ -256,13 +256,13 @@ const LearningPathsPage = () => {
                         key={path.id}
                         onClick={() => openPath(path.id)}
                         disabled={pathLoading}
-                        className="flex w-full items-center justify-between gap-4 rounded-[12px] border border-white/10 p-5 text-left transition-colors hover:border-orange-500/30"
+                        className="flex w-full items-center justify-between gap-4 rounded-[12px] border border-white/10 p-5 text-left transition-colors hover:border-cream/30"
                       >
                         <div>
-                          <p className="text-base font-medium text-white">{path.topic}</p>
+                          <p className="text-base font-medium text-cream">{path.topic}</p>
                           <p className="mt-1 text-xs text-gray-500">{doneCount}/{total} days complete</p>
                         </div>
-                        <span className={`rounded-full border px-3 py-1 font-dm-mono text-[10px] uppercase tracking-[0.08em] ${STATUS_PILL[path.status]}`}>
+                        <span className={`rounded-full border px-3 py-1 font-almarai text-[10px] uppercase tracking-[0.08em] ${STATUS_PILL[path.status]}`}>
                           {path.status}
                         </span>
                       </button>

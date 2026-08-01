@@ -30,11 +30,11 @@ const TasksPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-cream">
       <div className="mx-auto max-w-4xl px-5 py-10 md:px-8">
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <MonoLabel>Task list</MonoLabel>
-          <h1 className="mt-4 font-serif text-4xl italic tracking-tight text-white md:text-5xl">Tasks</h1>
+          <h1 className="mt-4 font-instrument text-4xl italic tracking-tight text-cream md:text-5xl">Tasks</h1>
           <p className="mt-3 max-w-xl text-base leading-7 text-gray-400">
             Everything you've added — including anything the AI coach created on your behalf.
           </p>
@@ -70,7 +70,7 @@ const TasksPage = () => {
             tasks.map((task) => (
               <Card key={task.id} className="flex items-center justify-between gap-4 px-5 py-4">
                 <div>
-                  <p className="text-sm font-medium text-white">{task.title}</p>
+                  <p className="text-sm font-medium text-cream">{task.title}</p>
                   {task.completedPomodoroCount > 0 && (
                     <p className="mt-1 text-xs text-gray-500">
                       {task.completedPomodoroCount} focus session{task.completedPomodoroCount === 1 ? "" : "s"} completed
@@ -79,7 +79,7 @@ const TasksPage = () => {
                 </div>
                 <button
                   onClick={() => completeTask(task.id)}
-                  className="shrink-0 rounded-full border border-white/20 px-4 py-2 font-dm-mono text-[11px] uppercase tracking-[0.08em] text-gray-300 hover:border-emerald-400/40 hover:text-emerald-300 transition-all"
+                  className="shrink-0 rounded-full border border-white/20 px-4 py-2 font-almarai text-[11px] uppercase tracking-[0.08em] text-gray-300 hover:border-emerald-400/40 hover:text-emerald-300 transition-all"
                 >
                   Mark done
                 </button>

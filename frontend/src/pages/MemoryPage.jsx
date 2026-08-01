@@ -19,7 +19,7 @@ import { Card, FieldTextarea, MonoLabel, PrimaryButton, SectionHeading } from ".
 const CATEGORY_PILL = {
   idea: "border-purple-400/40 text-purple-300",
   fact: "border-sky-400/40 text-sky-300",
-  task: "border-orange-400/40 text-orange-300",
+  task: "border-cream/40 text-cream",
   reflection: "border-pink-400/40 text-pink-300",
   resource: "border-emerald-400/40 text-emerald-300",
 };
@@ -107,11 +107,11 @@ const MemoryPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-cream">
       <div className="mx-auto max-w-6xl px-5 py-10 md:px-8">
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <MonoLabel>Second brain</MonoLabel>
-          <h1 className="mt-4 font-serif text-4xl italic tracking-tight text-white md:text-5xl">Memory</h1>
+          <h1 className="mt-4 font-instrument text-4xl italic tracking-tight text-cream md:text-5xl">Memory</h1>
           <p className="mt-4 max-w-xl text-base leading-7 text-gray-400">
             Ideas, facts, and reflections captured in passing — searchable later instead of lost in a chat scrollback.
           </p>
@@ -141,12 +141,12 @@ const MemoryPage = () => {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search your memory..."
-                  className="flex-1 rounded-full border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white outline-none focus:border-orange-500/40"
+                  className="flex-1 rounded-full border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-cream outline-none focus:border-cream/40"
                 />
                 <button
                   type="submit"
                   disabled={searching}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 text-gray-300 hover:text-white"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 text-gray-300 hover:text-cream"
                 >
                   <SearchRoundedIcon sx={{ fontSize: 18 }} />
                 </button>
@@ -157,7 +157,7 @@ const MemoryPage = () => {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
             <Card className="p-6">
               <div className="mb-5 flex items-center gap-3">
-                <PsychologyRoundedIcon sx={{ fontSize: 18 }} className="text-orange-500" />
+                <PsychologyRoundedIcon sx={{ fontSize: 18 }} className="text-cream" />
                 <SectionHeading>Captured notes</SectionHeading>
               </div>
 
@@ -172,14 +172,14 @@ const MemoryPage = () => {
                   notes.map((note) => (
                     <article key={note.id} className="rounded-[12px] border border-white/10 p-5">
                       <div className="flex flex-wrap items-center justify-between gap-3">
-                        <span className={`rounded-full border px-3 py-1 font-dm-mono text-[10px] uppercase tracking-[0.08em] ${CATEGORY_PILL[note.category] || CATEGORY_PILL.fact}`}>
+                        <span className={`rounded-full border px-3 py-1 font-almarai text-[10px] uppercase tracking-[0.08em] ${CATEGORY_PILL[note.category] || CATEGORY_PILL.fact}`}>
                           {note.category}
                         </span>
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleArchive(note.id)}
                             title="Archive"
-                            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-gray-400 hover:text-white"
+                            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-gray-400 hover:text-cream"
                           >
                             <ArchiveRoundedIcon sx={{ fontSize: 15 }} />
                           </button>
@@ -196,7 +196,7 @@ const MemoryPage = () => {
                       {note.tags?.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-1.5">
                           {note.tags.map((tag) => (
-                            <span key={tag} className="rounded-full border border-white/10 px-2.5 py-0.5 font-dm-mono text-[10px] text-gray-500">
+                            <span key={tag} className="rounded-full border border-white/10 px-2.5 py-0.5 font-almarai text-[10px] text-gray-500">
                               #{tag}
                             </span>
                           ))}

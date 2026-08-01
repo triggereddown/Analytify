@@ -65,11 +65,11 @@ const WorkJournal = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-cream">
       <div className="mx-auto max-w-7xl px-5 py-10 md:px-8">
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <MonoLabel>Evidence log</MonoLabel>
-          <h1 className="mt-4 font-serif text-4xl italic tracking-tight text-white md:text-5xl">Work Journal</h1>
+          <h1 className="mt-4 font-instrument text-4xl italic tracking-tight text-cream md:text-5xl">Work Journal</h1>
           <p className="mt-4 max-w-xl text-base leading-7 text-gray-400">
             What you actually did, logged as you go — the raw material behind every AI-generated report.
           </p>
@@ -103,7 +103,7 @@ const WorkJournal = () => {
                     <select
                       value={entryForm.goalId}
                       onChange={(e) => setEntryForm((prev) => ({ ...prev, goalId: e.target.value }))}
-                      className="rounded-[5px] border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-orange-500/40"
+                      className="rounded-[5px] border border-white/10 bg-black/40 px-4 py-3 text-sm text-cream outline-none focus:border-cream/40"
                     >
                       <option value="">No linked goal</option>
                       {activeGoalOptions.map((goal) => (
@@ -143,17 +143,17 @@ const WorkJournal = () => {
                       type="date"
                       value={range.from}
                       onChange={(e) => setRange((prev) => ({ ...prev, from: e.target.value }))}
-                      className="rounded-full border border-white/10 bg-black/40 px-3 py-2 text-xs text-white outline-none"
+                      className="rounded-full border border-white/10 bg-black/40 px-3 py-2 text-xs text-cream outline-none"
                     />
                     <input
                       type="date"
                       value={range.to}
                       onChange={(e) => setRange((prev) => ({ ...prev, to: e.target.value }))}
-                      className="rounded-full border border-white/10 bg-black/40 px-3 py-2 text-xs text-white outline-none"
+                      className="rounded-full border border-white/10 bg-black/40 px-3 py-2 text-xs text-cream outline-none"
                     />
                     <button
                       type="submit"
-                      className="rounded-full border border-white/20 px-4 py-2 font-dm-mono text-[11px] uppercase tracking-[0.08em] text-gray-300 hover:text-white"
+                      className="rounded-full border border-white/20 px-4 py-2 font-almarai text-[11px] uppercase tracking-[0.08em] text-gray-300 hover:text-cream"
                     >
                       Refresh
                     </button>
@@ -172,13 +172,13 @@ const WorkJournal = () => {
                       <article key={entry.id} className="rounded-[12px] border border-white/10 p-4">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
-                            <h3 className="text-lg font-medium text-white">{entry.title}</h3>
-                            <p className="mt-1 font-dm-mono text-[11px] uppercase tracking-[0.08em] text-gray-500">
+                            <h3 className="text-lg font-medium text-cream">{entry.title}</h3>
+                            <p className="mt-1 font-almarai text-[11px] uppercase tracking-[0.08em] text-gray-500">
                               {entry.loggedDate} {entry.ticketRef ? `| ${entry.ticketRef}` : ""}
                             </p>
                           </div>
                           {entry.goalId && (
-                            <span className="rounded-full border border-orange-500/40 px-3 py-1 font-dm-mono text-[10px] uppercase tracking-[0.08em] text-orange-400">
+                            <span className="rounded-full border border-cream/40 px-3 py-1 font-almarai text-[10px] uppercase tracking-[0.08em] text-cream">
                               Linked Goal
                             </span>
                           )}
@@ -201,7 +201,7 @@ const WorkJournal = () => {
                   <button
                     type="button"
                     onClick={() => generateReport(range)}
-                    className="inline-flex items-center gap-2 rounded-full border border-orange-500/40 px-4 py-2 font-dm-mono text-[11px] uppercase tracking-[0.08em] text-orange-400"
+                    className="inline-flex items-center gap-2 rounded-full border border-cream/40 px-4 py-2 font-almarai text-[11px] uppercase tracking-[0.08em] text-cream"
                   >
                     <DescriptionRoundedIcon sx={{ fontSize: 16 }} />
                     {reportLoading ? "Generating" : "Generate Report"}
@@ -213,7 +213,7 @@ const WorkJournal = () => {
                     <p className="text-sm text-gray-400">Writing your narrative from logged evidence...</p>
                   ) : report ? (
                     <div className="space-y-4">
-                      <div className="flex flex-wrap gap-3 font-dm-mono text-[11px] uppercase tracking-[0.08em] text-gray-500">
+                      <div className="flex flex-wrap gap-3 font-almarai text-[11px] uppercase tracking-[0.08em] text-gray-500">
                         <span>{report.entryCount} entries</span>
                         <span>{report.goalsIncluded} goals included</span>
                         <span>{report.dateRange.from} to {report.dateRange.to}</span>
@@ -234,7 +234,7 @@ const WorkJournal = () => {
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
               <Card className="p-6">
                 <div className="mb-5 flex items-center gap-3">
-                  <FlagRoundedIcon className="text-orange-500" sx={{ fontSize: 18 }} />
+                  <FlagRoundedIcon className="text-cream" sx={{ fontSize: 18 }} />
                   <div>
                     <MonoLabel className="block">Goals</MonoLabel>
                     <SectionHeading className="mt-2 text-lg">Long-term tracks</SectionHeading>
@@ -260,7 +260,7 @@ const WorkJournal = () => {
                   />
                   <button
                     type="submit"
-                    className="rounded-full border border-orange-500/40 px-4 py-2 font-dm-mono text-[11px] uppercase tracking-[0.08em] text-orange-400"
+                    className="rounded-full border border-cream/40 px-4 py-2 font-almarai text-[11px] uppercase tracking-[0.08em] text-cream"
                   >
                     + New Goal
                   </button>
@@ -277,9 +277,9 @@ const WorkJournal = () => {
                         key={goal.id}
                         type="button"
                         onClick={() => selectGoal(goal.id)}
-                        className="w-full rounded-[12px] border border-white/10 px-4 py-4 text-left hover:border-orange-500/30"
+                        className="w-full rounded-[12px] border border-white/10 px-4 py-4 text-left hover:border-cream/30"
                       >
-                        <p className="text-sm font-medium text-white">{goal.title}</p>
+                        <p className="text-sm font-medium text-cream">{goal.title}</p>
                         <p className="mt-2 text-xs text-gray-500">
                           {goal.targetDate ? `Target ${new Date(goal.targetDate).toLocaleDateString()}` : "No target date"}
                         </p>
@@ -297,7 +297,7 @@ const WorkJournal = () => {
                 {selectedGoal ? (
                   <div className="mt-4 space-y-4">
                     <div>
-                      <h3 className="text-lg font-medium text-white">{selectedGoal.title}</h3>
+                      <h3 className="text-lg font-medium text-cream">{selectedGoal.title}</h3>
                       {selectedGoal.description && <p className="mt-2 text-sm leading-7 text-gray-400">{selectedGoal.description}</p>}
                     </div>
                     <div className="space-y-3">
@@ -306,8 +306,8 @@ const WorkJournal = () => {
                       ) : (
                         selectedGoal.workLogEntries.map((entry) => (
                           <div key={entry.id} className="rounded-[12px] border border-white/10 p-4">
-                            <p className="text-sm font-medium text-white">{entry.title}</p>
-                            <p className="mt-2 font-dm-mono text-[11px] uppercase tracking-[0.08em] text-gray-500">{entry.loggedDate}</p>
+                            <p className="text-sm font-medium text-cream">{entry.title}</p>
+                            <p className="mt-2 font-almarai text-[11px] uppercase tracking-[0.08em] text-gray-500">{entry.loggedDate}</p>
                             {entry.description && <p className="mt-2 text-sm leading-6 text-gray-400">{entry.description}</p>}
                           </div>
                         ))
