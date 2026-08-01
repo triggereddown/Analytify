@@ -37,7 +37,7 @@ const Login = () => {
             onClick={() => navigate("/")}
             className="logo h-8 w-8 bg-cream rounded-full flex items-center justify-center cursor-pointer"
           >
-            <span className="text-xs font-bold">G</span>
+            <span className="text-xs font-bold text-black">G</span>
           </div>
           <div className="text-base">
             <span className="text-gray-300">New to the platform? </span>
@@ -120,7 +120,7 @@ const Login = () => {
         <div className="relative w-full h-full max-w-lg aspect-square">
           <div className="absolute inset-0 bg-cream/10 blur-[120px] rounded-full"></div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-gradient-to-b from-[#1a1a1a] to-black border border-gray-800 rounded-[3rem] shadow-2xl flex items-center justify-center overflow-hidden">
-            <div className="absolute top-[-10%] right-[-10%] w-32 h-32 bg-cream/20 blur-3xl rounded-full"></div>
+            <div className="absolute top-[-10%] right-[-10%] w-32 h-32 bg-orange-500/20 blur-3xl rounded-full"></div>
             <div className="p-10 text-center">
               <div className="w-20 h-2 bg-cream rounded-full mx-auto mb-6"></div>
               <h3 className="text-2xl font-bold mb-4">Welcome back</h3>

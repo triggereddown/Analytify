@@ -23,15 +23,6 @@ const BackgroundOrbs = () => (
   </>
 );
 
-/** Slim page-local label — the persistent AppShell nav now handles wayfinding */
-const TopBar = () => (
-  <div className="relative z-20 flex items-center justify-center gap-4 pt-8 pb-2">
-    <span className="text-xs uppercase tracking-[0.3em] text-gray-500 font-semibold">
-      Focus Mode
-    </span>
-  </div>
-);
-
 /**
  * Recovery banner — shown once when a prior session is restored.
  * Fades in then softly persists.
@@ -63,7 +54,7 @@ const StateBadge = ({ sessionState }) => {
   };
   const { text, color } = labels[sessionState] || labels.idle;
   return (
-    <p className={`text-[10px] uppercase tracking-[0.5em] font-bold mb-2 ${color}`}>
+    <p className={`font-almarai text-[11px] uppercase tracking-[0.08em] mb-2 ${color}`}>
       {text}
     </p>
   );
@@ -114,15 +105,15 @@ const TaskPicker = ({ tasks, loading, selectedTaskId, onSelect, onQuickAdd }) =>
 
   return (
     <div className="mb-8 text-left">
-      <label className="block text-[10px] uppercase tracking-[0.3em] text-gray-500 font-bold mb-3">
-        Linked Task (optional)
+      <label className="font-almarai block text-[11px] uppercase tracking-[0.08em] text-gray-500 mb-3">
+        Linked task (optional)
       </label>
 
       {!loading && tasks.length > 0 && (
         <select
           value={selectedTaskId ?? ""}
           onChange={(e) => onSelect(e.target.value || null)}
-          className="w-full bg-white/[0.03] border border-white/10 rounded-full px-4 py-3 text-sm text-cream outline-none focus:border-orange-500/50 mb-3"
+          className="w-full bg-white/[0.03] border border-white/10 rounded-full px-4 py-3 text-sm text-cream outline-none focus:border-cream/40 mb-3"
         >
           <option value="">No task — general focus session</option>
           {tasks.map((task) => (
@@ -139,7 +130,7 @@ const TaskPicker = ({ tasks, loading, selectedTaskId, onSelect, onQuickAdd }) =>
           value={quickAddValue}
           onChange={(e) => setQuickAddValue(e.target.value)}
           placeholder="Add a new task..."
-          className="flex-1 min-w-0 bg-white/[0.03] border border-white/10 rounded-full px-4 py-2 text-xs text-cream outline-none focus:border-orange-500/50"
+          className="flex-1 min-w-0 bg-white/[0.03] border border-white/10 rounded-full px-4 py-2 text-xs text-cream outline-none focus:border-cream/40"
         />
         <button
           type="submit"
@@ -174,7 +165,7 @@ const Controls = ({ sessionState, start, pause, resume, abandon, complete, onSta
           {...btnClick}
           id="btn-start-focus"
           onClick={onStartClick}
-          className="bg-cream py-5 rounded-full font-black text-sm tracking-widest uppercase shadow-xl shadow-cream/10 active:shadow-none"
+          className="bg-cream py-5 rounded-full font-medium text-sm text-black shadow-xl shadow-cream/10 active:shadow-none"
         >
           Start Focus
         </motion.button>
@@ -185,7 +176,7 @@ const Controls = ({ sessionState, start, pause, resume, abandon, complete, onSta
           {...btnClick}
           id="btn-pause"
           onClick={pause}
-          className="bg-white/5 border border-white/20 py-5 rounded-full font-black text-sm tracking-widest uppercase hover:bg-white/10 transition"
+          className="bg-white/5 border border-white/20 py-5 rounded-full font-medium text-sm hover:bg-white/10 transition"
         >
           Pause
         </motion.button>
@@ -196,7 +187,7 @@ const Controls = ({ sessionState, start, pause, resume, abandon, complete, onSta
           {...btnClick}
           id="btn-resume"
           onClick={resume}
-          className="bg-cream/80 py-5 rounded-full font-black text-sm tracking-widest uppercase shadow-lg shadow-cream/10"
+          className="bg-cream/80 py-5 rounded-full font-medium text-sm text-black shadow-lg shadow-cream/10"
         >
           Resume
         </motion.button>
@@ -209,7 +200,7 @@ const Controls = ({ sessionState, start, pause, resume, abandon, complete, onSta
             {...btnClick}
             id="btn-abandon"
             onClick={abandon}
-            className="bg-white/[0.02] border border-white/[0.05] py-4 rounded-full font-bold text-[11px] uppercase tracking-wider text-gray-500 hover:text-red-400 hover:border-red-400/20 transition-all"
+            className="bg-white/[0.02] border border-white/[0.05] py-4 rounded-full font-almarai text-[12px] text-gray-500 hover:text-red-400 hover:border-red-400/20 transition-all"
           >
             Abandon
           </motion.button>
@@ -217,7 +208,7 @@ const Controls = ({ sessionState, start, pause, resume, abandon, complete, onSta
             {...btnClick}
             id="btn-complete"
             onClick={complete}
-            className="bg-white/[0.02] border border-white/[0.05] py-4 rounded-full font-bold text-[11px] uppercase tracking-wider text-gray-500 hover:text-cream hover:border-cream/20 transition-all"
+            className="bg-white/[0.02] border border-white/[0.05] py-4 rounded-full font-almarai text-[12px] text-gray-500 hover:text-cream hover:border-cream/20 transition-all"
           >
             Complete
           </motion.button>
@@ -273,7 +264,7 @@ const EndStateCard = ({ sessionState, onNewSession, onDashboard }) => {
           {...btnClick}
           id="btn-new-session"
           onClick={onNewSession}
-          className="bg-cream py-4 rounded-full font-bold text-sm shadow-lg shadow-cream/10"
+          className="bg-cream py-4 rounded-full font-bold text-sm text-black shadow-lg shadow-cream/10"
         >
           New Session
         </motion.button>
@@ -332,9 +323,8 @@ const Focus = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] bg-gradient-to-br from-[#0a0a0a] via-[#0f0f0f] to-[#161616] text-cream selection:bg-cream/30 overflow-hidden relative">
       <BackgroundOrbs />
-      <TopBar />
 
-      <main className="flex flex-col items-center justify-center h-[calc(100vh-120px)] p-6 relative z-10">
+      <main className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] p-6 relative z-10">
         <AnimatePresence mode="wait">
 
           {/* ── End states (completed | abandoned | expired) ─────────────── */}
@@ -360,7 +350,7 @@ const Focus = () => {
                 {recovered && <RecoveryBanner key="recovery" />}
               </AnimatePresence>
 
-              <h3 className="text-xs uppercase tracking-[0.4em] text-cream/80 font-bold mb-2">
+              <h3 className="font-instrument text-2xl italic tracking-tight text-cream mb-6">
                 Deep Work
               </h3>
 
@@ -378,10 +368,6 @@ const Focus = () => {
               {/* Session state badge */}
               <StateBadge sessionState={sessionState} />
 
-              <h3 className="text-xs uppercase tracking-[0.4em] text-cream/40 font-bold mb-8">
-                Timer will beep a sound upon completion
-              </h3>
-
               {/* Timer */}
               <TimerDisplay
                 minutes={minutes}
@@ -389,7 +375,7 @@ const Focus = () => {
                 isRunning={isRunning}
               />
 
-              <div className="w-12 h-1 bg-gradient-to-r from-transparent via-orange-600 to-transparent mx-auto mb-14" />
+              <div className="mb-10" />
 
               {/* Controls */}
               <Controls
@@ -414,12 +400,6 @@ const Focus = () => {
         />
       )}
 
-      {/* Footer status line */}
-      <footer className="absolute bottom-10 left-0 w-full text-center">
-        <p className="text-[10px] uppercase tracking-[0.5em] text-cream/20 font-bold">
-          {isRunning ? "Distractions Silenced" : "System Idle"}
-        </p>
-      </footer>
     </div>
   );
 };

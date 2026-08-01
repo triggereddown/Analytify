@@ -1,11 +1,101 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { AnimatePresence, motion, useInView } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
-import { WordsPullUp, WordsPullUpMultiStyle, ScrollRevealText } from "../components/text-animations";
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
+import SpaceDashboardRoundedIcon from "@mui/icons-material/SpaceDashboardRounded";
+import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
+import TaskAltRoundedIcon from "@mui/icons-material/TaskAltRounded";
+import FlagRoundedIcon from "@mui/icons-material/FlagRounded";
+import PsychologyRoundedIcon from "@mui/icons-material/PsychologyRounded";
+import SchoolRoundedIcon from "@mui/icons-material/SchoolRounded";
+import { WordsPullUp, WordsPullUpMultiStyle } from "../components/text-animations";
 
 const NAV_LINKS = ["Product", "Features"];
+
+// Every entry routes through the same auth check as the rest of the app —
+// clicking any of these when logged out lands on /login first (matching
+// ProtectedRoute's behavior), not a broken/half-navigated state.
+const WORKSPACE_ITEMS = [
+  { label: "Dashboard", path: "/dashboard", icon: SpaceDashboardRoundedIcon, description: "Your focus, streaks, and burnout signals at a glance." },
+  { label: "Focus", path: "/focus", icon: BoltRoundedIcon, description: "Start a Pomodoro session and track deep work in real time." },
+  { label: "Tasks", path: "/tasks", icon: TaskAltRoundedIcon, description: "Everything you need to do, including what the AI coach created." },
+  { label: "Goals", path: "/goals", icon: FlagRoundedIcon, description: "Long-term objectives backed by real work-log evidence." },
+  { label: "Memory", path: "/memory", icon: PsychologyRoundedIcon, description: "Capture ideas in passing and recall them later — your second brain." },
+  { label: "Learning", path: "/learning-paths", icon: SchoolRoundedIcon, description: "AI-generated day-by-day curricula for anything you want to learn." },
+];
+
+/**
+ * Feature dropdown for the marketing nav — a pill trigger that expands
+ * into a grid of every app section. Every item is auth-gated: clicking
+ * navigates to /login first if the user isn't signed in yet, exactly like
+ * landing directly on a ProtectedRoute would.
+ */
+const WorkspaceDropdown = ({ isLoggedIn, navigate }) => {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  const goTo = (path) => {
+    setOpen(false);
+    navigate(isLoggedIn ? path : "/login");
+  };
+
+  return (
+    <div ref={containerRef} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] transition-colors sm:text-xs md:text-sm"
+        style={{ color: open ? "#E1E0CC" : "rgba(225, 224, 204, 0.8)" }}
+      >
+        Workspace
+        <KeyboardArrowDownRoundedIcon
+          sx={{ fontSize: 16, transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "none" }}
+        />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+            className="absolute top-full left-1/2 z-20 mt-3 w-[92vw] max-w-2xl -translate-x-1/2 rounded-2xl border border-white/10 bg-[#0c0c0c] p-3 shadow-[0_30px_80px_rgba(0,0,0,0.6)]"
+          >
+            <p className="px-2 pb-2 font-almarai text-[10px] uppercase tracking-[0.08em] text-gray-500">
+              {isLoggedIn ? "Jump back in" : "Sign in to open any of these"}
+            </p>
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+              {WORKSPACE_ITEMS.map((item) => (
+                <button
+                  key={item.path}
+                  onClick={() => goTo(item.path)}
+                  className="flex items-start gap-3 rounded-xl p-3 text-left transition-colors hover:bg-white/[0.05]"
+                >
+                  <item.icon sx={{ fontSize: 18 }} className="mt-0.5 shrink-0 text-cream" />
+                  <span>
+                    <span className="block font-almarai text-sm font-medium text-cream">{item.label}</span>
+                    <span className="mt-0.5 block text-xs leading-5 text-gray-500">{item.description}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const CARD_EASE = [0.22, 1, 0.36, 1];
 
@@ -137,6 +227,7 @@ const Landing = () => {
                     {item}
                   </a>
                 ))}
+                <WorkspaceDropdown isLoggedIn={isLoggedIn} navigate={navigate} />
                 <button
                   onClick={() => navigate(isLoggedIn ? "/dashboard" : "/login")}
                   className="text-[10px] transition-colors sm:text-xs md:text-sm"
@@ -216,10 +307,17 @@ const Landing = () => {
             />
           </div>
 
-          <ScrollRevealText
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7, ease: CARD_EASE }}
             className="mx-auto mt-10 max-w-2xl text-xs leading-7 text-[#DEDBC8] sm:text-sm md:text-base"
-            text="Analytify started as a simple Pomodoro timer and grew into a full analytics layer. Every session feeds a Deep Work Score, a burnout detector, and a 365-day heatmap, so the story your data tells is the same one you actually lived, not a vanity streak counter."
-          />
+          >
+            Analytify started as a simple Pomodoro timer and grew into a full analytics layer. Every session
+            feeds a Deep Work Score, a burnout detector, and a 365-day heatmap, so the story your data tells
+            is the same one you actually lived, not a vanity streak counter.
+          </motion.p>
         </div>
       </section>
 

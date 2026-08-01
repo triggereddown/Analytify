@@ -52,7 +52,7 @@ const Eyebrow = ({ children }) => (
 );
 
 const Dashboard = () => {
-  const { stats, dailyStats, advanced, loading } = useDashboardData();
+  const { stats, dailyStats, advanced, loading, error, retry } = useDashboardData();
   const navigate = useNavigate();
   const freezeTokens = useFreezeTokens();
 
@@ -62,6 +62,28 @@ const Dashboard = () => {
     const h = hour % 12 || 12;
     return `${h} ${ampm}`;
   };
+
+  // Distinct from the loading state below: loading always resolves (even
+  // when every request fails, since each one catches its own error), so
+  // without this check a failed fetch left stats/advanced permanently
+  // null and the loading spinner above never went away — this is what a
+  // "dashboard stuck loading forever" report actually was.
+  if (!loading && error) {
+    return (
+      <div className="flex min-h-[calc(100vh-64px)] items-center justify-center bg-black px-6 text-cream">
+        <div className="max-w-sm text-center">
+          <p className="font-instrument text-xl italic tracking-tight text-cream">Something went wrong</p>
+          <p className="mt-3 text-sm leading-6 text-gray-400">{error}</p>
+          <button
+            onClick={retry}
+            className="font-almarai mt-6 rounded-full bg-cream px-5 py-2.5 text-sm font-medium text-black hover:bg-white transition-all"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading || !stats || !advanced) {
     return (
