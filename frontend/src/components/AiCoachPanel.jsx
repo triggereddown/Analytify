@@ -293,8 +293,8 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       onKeyDown={handleInputKeyDown}
-                      placeholder="Ask a question, or type /..."
-                      className="min-h-[50px] w-full resize-none bg-transparent px-3 py-3 text-sm leading-6 text-cream outline-none placeholder:text-gray-500"
+                      placeholder="Ask anything, or type /..."
+                      className="min-h-[50px] w-full resize-none bg-transparent px-3 py-3 text-sm leading-6 text-cream outline-none placeholder:truncate placeholder:whitespace-nowrap placeholder:text-gray-500"
                     />
                     <button
                       type="button"
