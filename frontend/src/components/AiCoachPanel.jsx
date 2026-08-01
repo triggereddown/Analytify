@@ -132,7 +132,7 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
   return (
     <>
       {!isOpen && (
-        <div className="fixed bottom-4 right-4 z-[80] md:bottom-6 md:right-6">
+        <div className="fixed right-4 bottom-20 z-[80] md:bottom-6 md:right-6 lg:bottom-6">
           <motion.button
             key="coach-closed"
             initial={{ opacity: 0, y: 18, scale: 0.95 }}
@@ -194,17 +194,27 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
 
               <div className="relative flex-1 overflow-auto px-6 py-6">
                 {messages.length === 0 ? (
-                  <div className="mx-auto flex max-w-3xl flex-wrap gap-2">
-                    {SLASH_COMMANDS.map((cmd) => (
-                      <button
-                        key={cmd.command}
-                        type="button"
-                        onClick={() => applySuggestion(cmd)}
-                        className="rounded-[8px] border border-white/10 px-3 py-2 font-almarai text-sm text-gray-300 transition-colors hover:border-cream/40 hover:text-cream"
-                      >
-                        {cmd.label}
-                      </button>
-                    ))}
+                  <div className="mx-auto flex h-full max-w-3xl flex-col items-center justify-center gap-6 text-center">
+                    <div>
+                      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-cream/10 text-cream mx-auto mb-4">
+                        <SmartToyIcon sx={{ fontSize: 22 }} />
+                      </span>
+                      <p className="font-almarai text-sm text-gray-400">
+                        Ask me anything, or try a quick command below.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {SLASH_COMMANDS.map((cmd) => (
+                        <button
+                          key={cmd.command}
+                          type="button"
+                          onClick={() => applySuggestion(cmd)}
+                          className="rounded-[8px] border border-white/10 px-3 py-2 font-almarai text-sm text-gray-300 transition-colors hover:border-cream/40 hover:text-cream"
+                        >
+                          {cmd.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <div className="mx-auto max-w-3xl space-y-3">
@@ -283,7 +293,7 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       onKeyDown={handleInputKeyDown}
-                      placeholder="Ask a question, or type / for quick commands..."
+                      placeholder="Ask a question, or type /..."
                       className="min-h-[50px] w-full resize-none bg-transparent px-3 py-3 text-sm leading-6 text-cream outline-none placeholder:text-gray-500"
                     />
                     <button
