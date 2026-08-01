@@ -67,7 +67,7 @@ const TimerDisplay = ({ minutes, seconds, isRunning }) => (
   <motion.div
     animate={isRunning ? { scale: [1, 1.02, 1] } : {}}
     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-    className="text-[120px] leading-none font-black tracking-tighter tabular-nums mb-4 drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
+    className="text-[64px] leading-none font-black tracking-tighter tabular-nums mb-4 drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] sm:text-[90px] md:text-[120px]"
   >
     {minutes}
     <span
@@ -343,7 +343,7 @@ const Focus = () => {
               layoutId="formBox"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.08] p-12 rounded-[3.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-full max-w-lg text-center relative"
+              className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.08] p-6 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-full max-w-lg text-center relative sm:p-10 sm:rounded-[3rem] md:p-12 md:rounded-[3.5rem]"
             >
               {/* Recovery banner */}
               <AnimatePresence>
