@@ -266,6 +266,19 @@ export const resumeChatGraph = async (
   return interpretGraphResult(result);
 };
 
+/**
+ * Wipes the graph's checkpointed state for a thread — separate from chat
+ * message history (see chatMessage.repository.ts), which only stores the
+ * conversational transcript. Without this, clearing chat history could
+ * still leave a stale PAUSED checkpoint behind (e.g. mid-approval), so a
+ * "new conversation" wouldn't actually start clean — the next turn could
+ * resume into old graph state instead of starting fresh at `plan`.
+ */
+export const deleteChatThread = async (threadId: string): Promise<void> => {
+  await ensureCheckpointerReady();
+  await checkpointer.deleteThread(threadId);
+};
+
 // LangGraph surfaces a paused interrupt as an `__interrupt__` array on the
 // invoke() result rather than throwing — this is the one place both
 // runChatGraph and resumeChatGraph translate that into our own result type.

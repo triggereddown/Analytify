@@ -10,7 +10,7 @@ import {
   buildWeeklyReviewPrompt,
 } from "./ai.prompt.js";
 import { sendToGrok, type GrokMessage } from "./ai.client.js";
-import { resumeChatGraph, runChatGraph, type ChatGraphResult } from "./ai.graph.js";
+import { deleteChatThread, resumeChatGraph, runChatGraph, type ChatGraphResult } from "./ai.graph.js";
 import { createChatMessage, deleteAllChatMessages, findRecentChatMessages } from "./chatMessage.repository.js";
 import { isValidMemoryCategory } from "../memory/memory.service.js";
 import { createMemoryNote, searchMemoryNotes } from "../memory/memory.repository.js";
@@ -148,7 +148,10 @@ export const respondToApproval = async ({
  * of the chat transcript that created them.
  */
 export const clearChatHistory = async (userId: string): Promise<{ success: true }> => {
-  await deleteAllChatMessages(userId);
+  // Thread id is the userId (see chatWithAi) — clearing both the message
+  // transcript AND the graph checkpoint means a paused mid-approval turn
+  // can't linger and resume into a "new" conversation later.
+  await Promise.all([deleteAllChatMessages(userId), deleteChatThread(userId)]);
   return { success: true };
 };
 
