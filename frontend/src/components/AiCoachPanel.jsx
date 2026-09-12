@@ -6,7 +6,8 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import TerminalRoundedIcon from "@mui/icons-material/TerminalRounded";
 import MicRoundedIcon from "@mui/icons-material/MicRounded";
 import FlagRoundedIcon from "@mui/icons-material/FlagRounded";
-import { respondToAiApproval, sendAiMessage } from "../api/aiApi";
+import AddCommentRoundedIcon from "@mui/icons-material/AddCommentRounded";
+import { clearAiChatHistory, respondToAiApproval, sendAiMessage } from "../api/aiApi";
 import { matchSlashCommand, suggestSlashCommands, SLASH_COMMANDS } from "../features/chat/slashCommands";
 import { useVoiceInput } from "../features/chat/useVoiceInput";
 import { MonoLabel } from "./ui";
@@ -203,6 +204,26 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
     }
   };
 
+  // The coach remembers the last 20 turns (and your saved goals/context) on
+  // every message — a plain "hi" mid-conversation is answered as a
+  // continuation, not a fresh greeting. Since the panel doesn't render past
+  // turns when reopened, that memory is invisible here even though it's
+  // still active server-side — this explicitly wipes it so the next message
+  // really does start clean.
+  const [clearing, setClearing] = useState(false);
+  const handleNewConversation = async () => {
+    setClearing(true);
+    try {
+      await clearAiChatHistory();
+      setMessages([]);
+      setError("");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Couldn't start a new conversation");
+    } finally {
+      setClearing(false);
+    }
+  };
+
   // Voice input appends to whatever's already typed rather than replacing
   // it — so "click /, select task, hit mic, speak" produces
   // "/task <spoken text>" instead of wiping out the "/task " prefix the
@@ -307,13 +328,27 @@ const AiCoachPanel = ({ isOpen, onToggle, isVisible = true }) => {
             >
               <div className="flex items-center justify-between gap-4 border-b border-white/10 px-6 py-4">
                 <MonoLabel>AI Coach</MonoLabel>
-                <button
-                  type="button"
-                  onClick={onToggle}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 text-gray-300 transition-colors hover:border-white/30 hover:text-cream"
-                >
-                  <CloseRoundedIcon sx={{ fontSize: 18 }} />
-                </button>
+                <div className="flex items-center gap-2">
+                  {messages.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleNewConversation}
+                      disabled={clearing}
+                      title="Start a new conversation — clears memory of everything said so far"
+                      className="flex h-10 items-center gap-1.5 rounded-full border border-white/10 px-3.5 text-gray-300 transition-colors hover:border-white/30 hover:text-cream disabled:opacity-40"
+                    >
+                      <AddCommentRoundedIcon sx={{ fontSize: 16 }} />
+                      <span className="font-almarai text-xs">New conversation</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={onToggle}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 text-gray-300 transition-colors hover:border-white/30 hover:text-cream"
+                  >
+                    <CloseRoundedIcon sx={{ fontSize: 18 }} />
+                  </button>
+                </div>
               </div>
 
               <div className="relative flex-1 overflow-auto px-6 py-6">

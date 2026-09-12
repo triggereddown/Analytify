@@ -21,3 +21,9 @@ export const cleanCommandText = async (text) => {
   const { data } = await API.post("/ai/clean-command", { text });
   return data;
 };
+
+/** Wipes persisted chat history — the coach's next reply starts with no prior turns as context. */
+export const clearAiChatHistory = async () => {
+  const { data } = await API.delete("/ai/chat");
+  return data;
+};
