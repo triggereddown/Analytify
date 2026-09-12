@@ -314,6 +314,47 @@ export const calculateBurnoutMetric = async (userId: string): Promise<BurnoutMet
   };
 };
 
+export interface SessionPlan {
+  suggestedDurationMinutes: number;
+  suggestedStartHour: number | null;
+  reasoning: string;
+}
+
+/**
+ * Recommends a session length and time-of-day using data the app already
+ * tracks: recent burnout signal shortens the suggestion, peak productivity
+ * hours pick the "best" hour to nudge toward. No new tracking required —
+ * this is a read of existing signals, not a new data source.
+ */
+export const getSessionPlan = async (userId: string): Promise<SessionPlan> => {
+  const [burnout, peakHours] = await Promise.all([
+    calculateBurnoutMetric(userId),
+    calculatePeakProductivityHours(userId),
+  ]);
+
+  let suggestedDurationMinutes = POMODORO_TARGET_MINUTES;
+  let reasoning = `A standard ${POMODORO_TARGET_MINUTES}-minute session keeps deep work sustainable.`;
+
+  if (burnout.burnoutRisk === "high") {
+    suggestedDurationMinutes = 15;
+    reasoning = "Your recent completion rate has dropped — a shorter 15-minute session rebuilds momentum without the pressure of a full block.";
+  } else if (burnout.burnoutRisk === "medium") {
+    suggestedDurationMinutes = 20;
+    reasoning = "Signs of fatigue this week — a 20-minute session is easier to finish than a full 25.";
+  } else if (peakHours.length > 0 && peakHours[0]!.completedSessions >= 3) {
+    suggestedDurationMinutes = 30;
+    reasoning = "You're consistently completing sessions — a 30-minute block pushes a bit further into deep work.";
+  }
+
+  const suggestedStartHour = peakHours.length > 0 ? peakHours[0]!.hour : null;
+  if (suggestedStartHour !== null) {
+    const label = suggestedStartHour === 0 ? "12am" : suggestedStartHour < 12 ? `${suggestedStartHour}am` : suggestedStartHour === 12 ? "12pm" : `${suggestedStartHour - 12}pm`;
+    reasoning += ` Your most productive hour historically is around ${label}.`;
+  }
+
+  return { suggestedDurationMinutes, suggestedStartHour, reasoning };
+};
+
 export interface DashboardMetrics {
   consistencyScore: number;
   streak: FocusStreak;

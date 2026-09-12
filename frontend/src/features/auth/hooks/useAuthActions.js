@@ -11,8 +11,9 @@ export const useAuthActions = () => {
   };
 
   const register = async ({ name, email, password }) => {
-    await registerRequest({ name, email, password });
-    navigate("/login");
+    const response = await registerRequest({ name, email, password });
+    localStorage.setItem("token", response.data.token);
+    navigate("/dashboard");
   };
 
   const logout = () => {

@@ -7,6 +7,7 @@ import Heatmap from "../components/Heatmap";
 import ShareProfileCard from "../components/ShareProfileCard";
 import ExportButton from "../components/ExportButton";
 import BurnoutNudgeBanner from "../components/BurnoutNudgeBanner";
+import TodaysGrowthCard from "../components/TodaysGrowthCard";
 import DistractionReportCard from "../components/DistractionReportCard";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
@@ -137,14 +138,19 @@ const Dashboard = () => {
     completedSessions: ph.completedSessions,
   }));
 
+  // Streak is the hero metric — the one number that carries the app's
+  // entire emotional loop (see Focus.jsx's completion moment). The other
+  // three are supporting context, not equals, so they get a visibly
+  // smaller treatment below rather than an identical card each.
+  const heroStat = {
+    label: "Current Streak",
+    value: advanced.streak.currentStreak,
+    unit: advanced.streak.currentStreak === 1 ? "day" : "days",
+    caption: `Longest streak: ${advanced.streak.longestStreak} days`,
+    icon: LocalFireDepartmentRoundedIcon,
+  };
+
   const statCards = [
-    {
-      label: "Current Streak",
-      value: advanced.streak.currentStreak,
-      unit: "days",
-      caption: `Longest streak: ${advanced.streak.longestStreak} days`,
-      icon: LocalFireDepartmentRoundedIcon,
-    },
     {
       label: "Deep Work Score",
       value: advanced.deepWorkScore.score,
@@ -174,6 +180,16 @@ const Dashboard = () => {
       : advanced.burnout.burnoutRisk === "medium"
         ? "text-amber-200 border-amber-400/30"
         : "text-emerald-200 border-emerald-400/30";
+
+  // Elevated burnout risk gets a visibly different card, not the same
+  // neutral treatment as every other panel — a warning that looks
+  // identical to a stat card doesn't register as a warning.
+  const burnoutCardStyle =
+    advanced.burnout.burnoutRisk === "high"
+      ? "rounded-[18px] border border-red-400/25 bg-gradient-to-br from-[#1a0f0f] to-[#0d0d0d] p-6"
+      : advanced.burnout.burnoutRisk === "medium"
+        ? "rounded-[18px] border border-amber-400/20 bg-[#0d0d0d] p-6"
+        : `${CARD} p-6`;
 
   const completionRate = Math.round((stats.completed / (stats.totalSessions || 1)) * 100);
 
@@ -216,29 +232,53 @@ const Dashboard = () => {
           </div>
         </motion.section>
 
-        {/* Stat cards — identical treatment across all four, differentiated by content only */}
+        {/* "Did I actually grow today" — answered first, before any
+            session/streak metric, since it's the identity-level question
+            this section exists to answer. */}
+        <TodaysGrowthCard />
+
+        {/* Hero stat + supporting stats — streak carries the app's core
+            emotional loop, so it gets a visibly larger, accented treatment
+            instead of matching the other three cards 1-for-1. */}
         <motion.section
           {...fadeUp}
           transition={{ duration: 0.4, delay: 0.05 }}
-          className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
+          className="grid gap-4 lg:grid-cols-[1.3fr_1fr_1fr_1fr]"
         >
+          <motion.article
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="rounded-[18px] border border-cream/25 bg-gradient-to-br from-[#151310] to-[#0d0d0d] p-6"
+          >
+            <div className="flex items-center justify-between">
+              <p className="font-almarai text-[11px] uppercase tracking-[0.08em] text-cream/70">{heroStat.label}</p>
+              <heroStat.icon sx={{ fontSize: 20 }} className="text-cream" />
+            </div>
+            <div className="mt-4 flex items-end gap-2">
+              <span className="text-6xl font-semibold tracking-tight text-cream">{heroStat.value}</span>
+              <span className="pb-2 text-sm text-gray-400">{heroStat.unit}</span>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-gray-400">{heroStat.caption}</p>
+          </motion.article>
+
           {statCards.map((card, index) => (
             <motion.article
               key={card.label}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.04 * index }}
+              transition={{ duration: 0.3, delay: 0.04 * (index + 1) }}
               className={`${CARD} p-5`}
             >
               <div className="flex items-center justify-between">
                 <p className="font-almarai text-[11px] uppercase tracking-[0.08em] text-gray-500">{card.label}</p>
-                <card.icon sx={{ fontSize: 17 }} className="text-cream" />
+                <card.icon sx={{ fontSize: 16 }} className="text-gray-400" />
               </div>
               <div className="mt-4 flex items-end gap-1.5">
-                <span className="text-4xl font-medium tracking-tight text-cream">{card.value}</span>
+                <span className="text-3xl font-medium tracking-tight text-cream">{card.value}</span>
                 <span className="pb-1 text-xs text-gray-500">{card.unit}</span>
               </div>
-              <p className="mt-3 text-sm leading-6 text-gray-500">{card.caption}</p>
+              <p className="mt-3 text-xs leading-5 text-gray-500">{card.caption}</p>
             </motion.article>
           ))}
         </motion.section>
@@ -288,7 +328,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className={`${CARD} p-6`}>
+          <div className={burnoutCardStyle}>
             <h2 className="font-instrument text-xl italic tracking-tight text-cream">Burnout risk</h2>
             <div className="mt-4 flex items-end gap-2">
               <span className="text-4xl font-medium tracking-tight text-cream">{advanced.burnout.burnoutScore}</span>

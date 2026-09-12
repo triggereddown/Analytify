@@ -11,6 +11,7 @@ import {
   getUserContext,
   getWeeklyReview,
   recallMemory,
+  respondToApproval,
 } from "./ai.service.js";
 
 export const context = asyncHandler(async (req: Request, res: Response) => {
@@ -21,6 +22,12 @@ export const context = asyncHandler(async (req: Request, res: Response) => {
 export const chat = asyncHandler(async (req: Request, res: Response) => {
   const { message } = req.body;
   const result = await chatWithAi({ userId: req.user!.id, message });
+  res.json(result);
+});
+
+export const approve = asyncHandler(async (req: Request, res: Response) => {
+  const { toolCallId, approved } = req.body;
+  const result = await respondToApproval({ userId: req.user!.id, toolCallId, approved });
   res.json(result);
 });
 

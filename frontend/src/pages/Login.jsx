@@ -4,19 +4,28 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion"; // Required for transition
 import { useAuthActions } from "../features/auth/hooks/useAuthActions";
 import PersonIcon from "@mui/icons-material/Person";
+import ErrorOutlineRoundedIcon from "@mui/icons-material/ErrorOutlineRounded";
+import { getErrorMessage } from "../components/ui";
 
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuthActions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(null);
+    setSubmitting(true);
     try {
       await login({ email, password });
-    } catch (error) {
-      console.error("Login failed", error);
+    } catch (err) {
+      console.error("Login failed", err);
+      setError(getErrorMessage(err, "Incorrect email or password."));
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -62,6 +71,12 @@ const Login = () => {
           </div>
 
           <div className="inputfields">
+            {error && (
+              <div className="mb-5 flex items-center gap-2 rounded-full border border-red-400/30 bg-red-500/[0.06] px-4 py-3 text-sm text-red-300">
+                <ErrorOutlineRoundedIcon sx={{ fontSize: 16 }} className="shrink-0" />
+                {error}
+              </div>
+            )}
             <form className="flex flex-col gap-5" onSubmit={handleLogin}>
               <div className="flex flex-col gap-2">
                 <label className="text-base text-gray-300 ml-1">Email</label>
@@ -96,10 +111,11 @@ const Login = () => {
               </div>
 
               <button
-                className="bg-cream hover:bg-white text-black font-bold rounded-full py-4 mt-2 transition-all shadow-lg shadow-cream/10"
+                className="bg-cream hover:bg-white text-black font-bold rounded-full py-4 mt-2 transition-all shadow-lg shadow-cream/10 disabled:opacity-60"
                 type="submit"
+                disabled={submitting}
               >
-                Login
+                {submitting ? "Logging in..." : "Login"}
               </button>
             </form>
           </div>

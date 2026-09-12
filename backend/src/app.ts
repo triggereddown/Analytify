@@ -16,6 +16,7 @@ import worklogRoutes from "./modules/worklog/worklog.routes.js";
 import goalsRoutes from "./modules/goals/goals.routes.js";
 import memoryRoutes from "./modules/memory/memory.routes.js";
 import learningPathRoutes from "./modules/learning-path/learningPath.routes.js";
+import growthRoutes from "./modules/growth/growth.routes.js";
 import requestLogger from "./middleware/requestLogger.middleware.js";
 import errorHandler from "./middleware/error.middleware.js";
 // TEACHING NOTE — src/types/express.d.ts needs NO import anywhere:
@@ -63,6 +64,7 @@ app.use("/api/worklog", worklogRoutes);
 app.use("/api/goals", goalsRoutes);
 app.use("/api/memory", memoryRoutes);
 app.use("/api/learning-paths", learningPathRoutes);
+app.use("/api/growth", growthRoutes);
 
 // Centralized error handler MUST be the last middleware
 app.use(errorHandler);

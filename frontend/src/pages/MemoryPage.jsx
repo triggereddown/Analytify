@@ -11,7 +11,7 @@ import {
   listMemoryNotes,
   searchMemoryNotes,
 } from "../api/memoryApi";
-import { Card, FieldTextarea, MonoLabel, PrimaryButton, SectionHeading } from "../components/ui";
+import { Card, FieldTextarea, getErrorMessage, MonoLabel, PrimaryButton, SectionHeading, useToast } from "../components/ui";
 
 // Category is a genuine semantic distinction (not decorative), so it keeps
 // its own hue per category — but as thin border+text only, matching the
@@ -40,6 +40,7 @@ const MemoryPage = () => {
 
   const [aiContent, setAiContent] = useState("");
   const [capturing, setCapturing] = useState(false);
+  const { showToast, Toast } = useToast();
 
   const load = async () => {
     setLoading(true);
@@ -68,6 +69,7 @@ const MemoryPage = () => {
       setNotes(res.data);
     } catch (err) {
       console.error("Failed to search memory", err);
+      showToast(getErrorMessage(err, "Search failed."), "error");
     } finally {
       setSearching(false);
     }
@@ -80,9 +82,11 @@ const MemoryPage = () => {
     try {
       await captureMemoryNoteWithAi({ content: aiContent.trim() });
       setAiContent("");
+      showToast("Note captured");
       await load();
     } catch (err) {
       console.error("Failed to capture memory note", err);
+      showToast(getErrorMessage(err, "Couldn't capture that note."), "error");
     } finally {
       setCapturing(false);
     }
@@ -94,6 +98,7 @@ const MemoryPage = () => {
       setNotes((prev) => prev.filter((n) => n.id !== id));
     } catch (err) {
       console.error("Failed to archive note", err);
+      showToast(getErrorMessage(err, "Couldn't archive that note."), "error");
     }
   };
 
@@ -103,11 +108,13 @@ const MemoryPage = () => {
       setNotes((prev) => prev.filter((n) => n.id !== id));
     } catch (err) {
       console.error("Failed to delete note", err);
+      showToast(getErrorMessage(err, "Couldn't delete that note."), "error");
     }
   };
 
   return (
     <div className="min-h-screen bg-black text-cream">
+      <Toast />
       <div className="mx-auto max-w-6xl px-5 py-10 md:px-8">
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <MonoLabel>Second brain</MonoLabel>
@@ -165,9 +172,15 @@ const MemoryPage = () => {
                 {loading ? (
                   <p className="text-sm text-gray-400">Loading notes...</p>
                 ) : notes.length === 0 ? (
-                  <p className="rounded-[5px] border border-dashed border-white/10 p-6 text-center text-sm text-gray-400">
-                    No notes yet — capture your first thought.
-                  </p>
+                  <div className="rounded-[18px] border border-cream/30 bg-black/20 p-10 text-center">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[18px] border border-cream/30">
+                      <PsychologyRoundedIcon sx={{ fontSize: 24 }} className="text-cream" />
+                    </div>
+                    <p className="mt-5 text-base font-medium text-cream">Nothing captured yet</p>
+                    <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-gray-500">
+                      Paste a thought on the left — the AI will file it under a category automatically.
+                    </p>
+                  </div>
                 ) : (
                   notes.map((note) => (
                     <article key={note.id} className="rounded-[12px] border border-white/10 p-5">

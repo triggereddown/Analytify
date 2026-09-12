@@ -5,6 +5,7 @@ import {
   calculateBurnoutMetric,
   calculatePeakProductivityHours,
   calculateDeepWorkScore,
+  getSessionPlan,
 } from "./analytics.service.js";
 import { cacheGet, cacheSet, dashboardCacheKey } from "../../config/redis.js";
 import logger from "../../utils/logger.js";
@@ -123,6 +124,16 @@ export const getDeepWorkScore = async (req: Request, res: Response, next: NextFu
       `Fetched deep work score in ${duration.toFixed(2)}ms`,
     );
     res.json(deepWorkScore);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSessionPlanHandler = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.user!.id;
+  try {
+    const plan = await getSessionPlan(userId);
+    res.json(plan);
   } catch (error) {
     next(error);
   }

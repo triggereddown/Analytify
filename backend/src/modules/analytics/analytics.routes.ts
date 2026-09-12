@@ -6,6 +6,7 @@ import {
   getBurnout,
   getPeakHours,
   getDeepWorkScore,
+  getSessionPlanHandler,
 } from "./analytics.controller.js";
 
 const router = express.Router();
@@ -15,5 +16,6 @@ router.get("/heatmap", authMiddleware, getHeatmap);
 router.get("/burnout", authMiddleware, getBurnout);
 router.get("/peak-hours", authMiddleware, getPeakHours);
 router.get("/deep-work-score", authMiddleware, getDeepWorkScore);
+router.get("/session-plan", authMiddleware, getSessionPlanHandler);
 
 export default router;

@@ -25,3 +25,9 @@ export const fetchProductivityHours = () => API.get("/analytics/peak-hours");
  * rate, and consistency over the last 30 days).
  */
 export const fetchDeepWorkScore = () => API.get("/analytics/deep-work-score");
+
+/**
+ * Fetch the suggested session length + best time-of-day, derived from
+ * burnout risk and peak productivity hours.
+ */
+export const fetchSessionPlan = () => API.get("/analytics/session-plan");

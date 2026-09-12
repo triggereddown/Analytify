@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "AnalyticsAllrounder Focus Guard",
+  "version": "0.1.0",
+  "description": "Detects distracting tabs during your active focus session and logs them automatically.",
+  "permissions": ["tabs", "storage", "alarms"],
+  "host_permissions": ["http://localhost:5000/*", "https://*/*"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Focus Guard"
+  },
+  "options_page": "options.html"
+}

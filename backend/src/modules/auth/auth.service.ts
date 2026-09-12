@@ -55,7 +55,7 @@ export const registerUser = async ({
   name,
   email,
   password,
-}: RegisterInput): Promise<{ success: true; message: string; user: PublicUser }> => {
+}: RegisterInput): Promise<{ success: true; message: string; token: string; user: PublicUser & { tier: SubscriptionTier } }> => {
   if (!name || !email || !password) {
     throw new BadRequestError("Name, email and password are required");
   }
@@ -68,10 +68,18 @@ export const registerUser = async ({
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
   const user = await createUser({ name, email, password: hashedPassword });
 
+  // createUser always creates the Billing row in the same transaction
+  // (see auth.repository.ts), so a fresh user is always "free" tier —
+  // sign the token straight away instead of forcing a redundant login
+  // round-trip right after the user just typed these same credentials.
+  const tier: SubscriptionTier = "free";
+  const token = signToken(user.id, tier);
+
   return {
     success: true,
     message: "User registered successfully",
-    user: toPublicUser(user),
+    token,
+    user: { ...toPublicUser(user), tier },
   };
 };
 

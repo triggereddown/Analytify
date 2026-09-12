@@ -39,6 +39,9 @@ export const useTasks = () => {
     [],
   );
 
+  // Resolves only once the server confirms — the caller (TasksPage) is
+  // responsible for the visual "done" beat before removal, so this hook
+  // stays a pure data layer instead of owning animation timing.
   const completeTask = useCallback(async (taskId) => {
     await updateTaskRequest(taskId, { status: "completed" });
     setTasks((prev) => prev.filter((t) => t.id !== taskId));

@@ -7,11 +7,10 @@ import {
   buildMemoryRecallPrompt,
   buildQuickCommandCleanupPrompt,
   buildReportPrompt,
-  buildSystemPrompt,
   buildWeeklyReviewPrompt,
 } from "./ai.prompt.js";
-import { sendToGrok, sendToGrokWithTools, type GrokMessage } from "./ai.client.js";
-import { chatTools, executeToolCall } from "./ai.tools.js";
+import { sendToGrok, type GrokMessage } from "./ai.client.js";
+import { resumeChatGraph, runChatGraph, type ChatGraphResult } from "./ai.graph.js";
 import { createChatMessage, deleteAllChatMessages, findRecentChatMessages } from "./chatMessage.repository.js";
 import { isValidMemoryCategory } from "../memory/memory.service.js";
 import { createMemoryNote, searchMemoryNotes } from "../memory/memory.repository.js";
@@ -37,66 +36,27 @@ export const getUserContext = async (userId: string) => {
   return context;
 };
 
-// A single chat turn can trigger at most this many sequential tool calls
-// before we force a final answer. Guards against a runaway loop where the
-// model keeps calling tools instead of ever replying to the user.
-const MAX_TOOL_ROUNDS = 4;
-
-export const chatWithAi = async ({ userId, message }: ChatInput) => {
-  const prompt = String(message ?? "").trim();
-  if (!prompt) {
-    throw new BadRequestError("Message is required");
-  }
-
-  const [context, history] = await Promise.all([getUserContext(userId), findRecentChatMessages(userId)]);
-  const systemPrompt = buildSystemPrompt(context);
-
-  // Only user/assistant history is persisted, so every replay starts from a
-  // clean slate — no stale tool-call artifacts from a previous turn leak in.
-  const messages: GrokMessage[] = [
-    { role: "system", content: systemPrompt },
-    ...history.map((entry) => ({ role: entry.role, content: entry.content }) as GrokMessage),
-    { role: "user", content: prompt },
-  ];
-
-  const toolsInvoked: string[] = [];
-  let finalReply: string | null = null;
-
-  for (let round = 0; round < MAX_TOOL_ROUNDS; round += 1) {
-    const reply = await sendToGrokWithTools(messages, chatTools);
-
-    if (reply.toolCalls.length === 0) {
-      finalReply = reply.content ?? "";
-      break;
-    }
-
-    // Record the assistant's decision to call tools, then execute each one
-    // and feed its result straight back — this is the standard OpenAI-style
-    // tool-calling loop: assistant-with-tool_calls, then one "tool" message
-    // per call, then ask the model again for its next move or final answer.
-    messages.push({ role: "assistant", content: reply.content, tool_calls: reply.toolCalls });
-
-    for (const call of reply.toolCalls) {
-      const result = await executeToolCall(userId, call.function.name, call.function.arguments);
-      toolsInvoked.push(result.toolName);
-      messages.push({ role: "tool", content: result.resultSummary, tool_call_id: call.id });
-    }
-  }
-
-  if (finalReply === null) {
-    // Ran out of rounds without a plain-text reply — ask once more without
-    // tools available so the model is forced to summarize what happened.
-    finalReply = await sendToGrok(messages);
-  }
-
-  await Promise.all([
-    createChatMessage(userId, "user", prompt),
-    createChatMessage(userId, "assistant", finalReply),
-  ]);
+/**
+ * Turns a completed graph result into the API response shape. Shared by
+ * chatWithAi and respondToApproval — a turn that paused mid-way for
+ * approval and one that never needed to both end up going through this
+ * same finishing step once the graph is actually done, and both need the
+ * assistant's reply persisted (the user's prompt is persisted separately,
+ * up front, before the graph even runs — see chatWithAi).
+ */
+const finishChatTurn = async (
+  userId: string,
+  context: Awaited<ReturnType<typeof getUserContext>>,
+  result: ChatGraphResult & { status: "completed" },
+) => {
+  await createChatMessage(userId, "assistant", result.reply);
 
   return {
-    reply: finalReply,
-    toolsInvoked,
+    status: "completed" as const,
+    reply: result.reply,
+    toolsInvoked: result.toolsInvoked,
+    plan: result.plan,
+    reflections: result.reflections,
     contextSummary: {
       currentStreak: context.streak.currentStreak,
       deepWorkScore: context.analytics.deepWorkScore,
@@ -104,6 +64,82 @@ export const chatWithAi = async ({ userId, message }: ChatInput) => {
       activeTasks: context.activeTasks.length,
     },
   };
+};
+
+/**
+ * The chat agent's actual plan -> act -> reflect -> finalize control flow
+ * lives in ai.graph.ts as an explicit LangGraph state graph, checkpointed
+ * to Postgres — this function is the app-level entry point: resolve the
+ * user's context and history, hand off to the graph, then either persist
+ * the finished turn or report back that it's paused for approval (see
+ * respondToApproval for how a paused turn gets resumed). The user's prompt
+ * is persisted up front, before the graph runs, specifically so a turn
+ * that pauses for approval still has its prompt saved — the graph may not
+ * finish for a while (or the user may reject and never revisit it), but
+ * the fact they asked should show up in history regardless. The thread id
+ * is just the userId — chat is already one continuous conversation per
+ * user (see findRecentChatMessages), so there's no separate thread concept
+ * to track on top of that.
+ */
+export const chatWithAi = async ({ userId, message }: ChatInput) => {
+  const prompt = String(message ?? "").trim();
+  if (!prompt) {
+    throw new BadRequestError("Message is required");
+  }
+
+  const [context, history] = await Promise.all([getUserContext(userId), findRecentChatMessages(userId)]);
+
+  // Only user/assistant history is persisted, so every replay starts from a
+  // clean slate — no stale tool-call artifacts from a previous turn leak in.
+  const historyMessages: GrokMessage[] = history.map(
+    (entry) => ({ role: entry.role, content: entry.content }) as GrokMessage,
+  );
+
+  await createChatMessage(userId, "user", prompt);
+  const result = await runChatGraph(userId, userId, prompt, context, historyMessages);
+
+  if (result.status === "pending_approval") {
+    return result;
+  }
+
+  return finishChatTurn(userId, context, result);
+};
+
+/**
+ * Resumes a turn that paused waiting for the user to approve or reject an
+ * action (currently only create_goal — see ai.graph.ts
+ * TOOLS_REQUIRING_APPROVAL). The prompt that started the paused turn isn't
+ * re-sent here — it's already baked into the graph's checkpointed state
+ * (and already persisted to chat history by chatWithAi), only the
+ * approval decision is new input.
+ */
+export const respondToApproval = async ({
+  userId,
+  toolCallId,
+  approved,
+}: {
+  userId: string;
+  toolCallId: unknown;
+  approved: unknown;
+}) => {
+  const id = String(toolCallId ?? "").trim();
+  if (!id) {
+    throw new BadRequestError("toolCallId is required");
+  }
+  if (typeof approved !== "boolean") {
+    throw new BadRequestError("approved must be a boolean");
+  }
+
+  const context = await getUserContext(userId);
+  const result = await resumeChatGraph(userId, { toolCallId: id, approved });
+
+  if (result.status === "pending_approval") {
+    // Another approval-gated call was in the same round — surface it the
+    // same way the first one was, rather than assuming only one ever exists.
+    return result;
+  }
+
+  return finishChatTurn(userId, context, result);
 };
 
 /**

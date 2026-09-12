@@ -37,9 +37,23 @@ export type AiDistractionSnapshot = {
   count: number;
 };
 
+export type AiGoalSnapshot = {
+  id: string;
+  title: string;
+  description: string | null;
+  status: "active" | "completed" | "abandoned";
+};
+
+export type AiWorkLogSnapshot = {
+  title: string;
+  loggedDate: string;
+};
+
 export type AiDbContext = {
   profile: AiUserProfile | null;
   activeTasks: AiTaskSnapshot[];
+  activeGoals: AiGoalSnapshot[];
+  recentWorkLog: AiWorkLogSnapshot[];
   recentCompletedSessions: AiSessionSnapshot[];
   recentDistractions: AiDistractionSnapshot[];
   streak: {

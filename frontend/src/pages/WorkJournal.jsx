@@ -1,17 +1,18 @@
 import React, { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import AddTaskRoundedIcon from "@mui/icons-material/AddTaskRounded";
 import FlagRoundedIcon from "@mui/icons-material/FlagRounded";
 import DescriptionRoundedIcon from "@mui/icons-material/DescriptionRounded";
 import { useWorkLog } from "../features/worklog/hooks/useWorkLog";
 import { useGoals } from "../features/worklog/hooks/useGoals";
-import { Card, FieldInput, FieldTextarea, MonoLabel, PrimaryButton, SectionHeading } from "../components/ui";
+import { Card, FieldInput, FieldTextarea, getErrorMessage, MonoLabel, PrimaryButton, SectionHeading, useToast } from "../components/ui";
 
 const today = new Date().toISOString().split("T")[0];
 
 const WorkJournal = () => {
   const { entries, loading, range, setRange, report, reportLoading, reload, addEntry, generateReport } = useWorkLog();
-  const { goals, selectedGoal, loading: goalsLoading, addGoal, selectGoal } = useGoals();
+  const { goals, selectedGoal, loading: goalsLoading, selectGoal } = useGoals();
 
   const [entryForm, setEntryForm] = useState({
     title: "",
@@ -20,13 +21,9 @@ const WorkJournal = () => {
     goalId: "",
     loggedDate: today,
   });
-  const [goalForm, setGoalForm] = useState({
-    title: "",
-    description: "",
-    targetDate: "",
-  });
 
   const activeGoalOptions = useMemo(() => goals.filter((goal) => goal.status === "active"), [goals]);
+  const { showToast, Toast } = useToast();
 
   const handleAddEntry = async (event) => {
     event.preventDefault();
@@ -42,19 +39,10 @@ const WorkJournal = () => {
         goalId: "",
         loggedDate: today,
       });
+      showToast("Entry logged");
     } catch (err) {
       console.error("Failed to add work entry", err);
-    }
-  };
-
-  const handleCreateGoal = async (event) => {
-    event.preventDefault();
-    try {
-      const goal = await addGoal(goalForm);
-      setGoalForm({ title: "", description: "", targetDate: "" });
-      await selectGoal(goal.id);
-    } catch (err) {
-      console.error("Failed to create goal", err);
+      showToast(getErrorMessage(err, "Couldn't log that entry."), "error");
     }
   };
 
@@ -66,6 +54,7 @@ const WorkJournal = () => {
 
   return (
     <div className="min-h-screen bg-black text-cream">
+      <Toast />
       <div className="mx-auto max-w-7xl px-5 py-10 md:px-8">
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <MonoLabel>Evidence log</MonoLabel>
@@ -164,9 +153,10 @@ const WorkJournal = () => {
                   {loading ? (
                     <p className="text-sm text-gray-400">Loading entries...</p>
                   ) : entries.length === 0 ? (
-                    <p className="rounded-[5px] border border-dashed border-white/10 p-5 text-sm text-gray-400">
-                      No work logs found in this date range yet.
-                    </p>
+                    <div className="rounded-[18px] border border-dashed border-white/10 p-8 text-center">
+                      <p className="text-sm text-gray-400">No work logged in this date range yet.</p>
+                      <p className="mt-1 text-xs text-gray-500">Try widening the range, or log your first entry above.</p>
+                    </div>
                   ) : (
                     entries.map((entry) => (
                       <article key={entry.id} className="rounded-[12px] border border-white/10 p-4">
@@ -233,44 +223,33 @@ const WorkJournal = () => {
           <aside className="space-y-6">
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
               <Card className="p-6">
-                <div className="mb-5 flex items-center gap-3">
-                  <FlagRoundedIcon className="text-cream" sx={{ fontSize: 18 }} />
-                  <div>
-                    <MonoLabel className="block">Goals</MonoLabel>
-                    <SectionHeading className="mt-2 text-lg">Long-term tracks</SectionHeading>
+                <div className="mb-5 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <FlagRoundedIcon className="text-cream" sx={{ fontSize: 18 }} />
+                    <div>
+                      <MonoLabel className="block">Goals</MonoLabel>
+                      <SectionHeading className="mt-2 text-lg">Long-term tracks</SectionHeading>
+                    </div>
                   </div>
+                  <Link
+                    to="/goals"
+                    className="rounded-full border border-cream/40 px-4 py-2 font-almarai text-[11px] uppercase tracking-[0.08em] text-cream hover:bg-cream/10"
+                  >
+                    Manage
+                  </Link>
                 </div>
 
-                <form onSubmit={handleCreateGoal} className="space-y-3">
-                  <FieldInput
-                    value={goalForm.title}
-                    onChange={(e) => setGoalForm((prev) => ({ ...prev, title: e.target.value }))}
-                    placeholder="Get promoted to Senior Engineer"
-                  />
-                  <FieldTextarea
-                    value={goalForm.description}
-                    onChange={(e) => setGoalForm((prev) => ({ ...prev, description: e.target.value }))}
-                    rows={3}
-                    placeholder="What this goal means and why it matters..."
-                  />
-                  <FieldInput
-                    type="date"
-                    value={goalForm.targetDate}
-                    onChange={(e) => setGoalForm((prev) => ({ ...prev, targetDate: e.target.value }))}
-                  />
-                  <button
-                    type="submit"
-                    className="rounded-full border border-cream/40 px-4 py-2 font-almarai text-[11px] uppercase tracking-[0.08em] text-cream"
-                  >
-                    + New Goal
-                  </button>
-                </form>
-
-                <div className="mt-5 space-y-3">
+                <div className="space-y-3">
                   {goalsLoading ? (
                     <p className="text-sm text-gray-400">Loading goals...</p>
                   ) : activeGoalOptions.length === 0 ? (
-                    <p className="text-sm text-gray-400">No active goals yet.</p>
+                    <p className="text-sm text-gray-400">
+                      No active goals yet.{" "}
+                      <Link to="/goals" className="underline hover:text-cream">
+                        Create one
+                      </Link>
+                      .
+                    </p>
                   ) : (
                     activeGoalOptions.map((goal) => (
                       <button

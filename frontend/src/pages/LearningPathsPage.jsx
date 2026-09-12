@@ -11,7 +11,7 @@ import {
   setLearningTaskDone,
   updateLearningPathStatus,
 } from "../api/learningPathApi";
-import { Card, FieldInput, FieldTextarea, MonoLabel, PrimaryButton, SectionHeading } from "../components/ui";
+import { Card, FieldInput, FieldTextarea, getErrorMessage, MonoLabel, PrimaryButton, SectionHeading, useToast } from "../components/ui";
 
 const STATUS_PILL = {
   active: "border-cream/40 text-cream",
@@ -31,6 +31,7 @@ const LearningPathsPage = () => {
 
   const [form, setForm] = useState({ topic: "", goal: "", totalDays: 7 });
   const [generating, setGenerating] = useState(false);
+  const { showToast, Toast } = useToast();
 
   const load = async () => {
     setLoading(true);
@@ -39,6 +40,7 @@ const LearningPathsPage = () => {
       setPaths(res.data);
     } catch (err) {
       console.error("Failed to load learning paths", err);
+      showToast(getErrorMessage(err, "Couldn't load your learning paths."), "error");
     } finally {
       setLoading(false);
     }
@@ -55,6 +57,7 @@ const LearningPathsPage = () => {
       setActivePath(res.data);
     } catch (err) {
       console.error("Failed to load learning path", err);
+      showToast(getErrorMessage(err, "Couldn't open that path."), "error");
     } finally {
       setPathLoading(false);
     }
@@ -75,6 +78,7 @@ const LearningPathsPage = () => {
       setActivePath(res.data);
     } catch (err) {
       console.error("Failed to generate learning path", err);
+      showToast(getErrorMessage(err, "Couldn't generate that path — try again."), "error");
     } finally {
       setGenerating(false);
     }
@@ -89,6 +93,7 @@ const LearningPathsPage = () => {
       }));
     } catch (err) {
       console.error("Failed to update task", err);
+      showToast(getErrorMessage(err, "Couldn't update that day."), "error");
     }
   };
 
@@ -99,6 +104,7 @@ const LearningPathsPage = () => {
       await load();
     } catch (err) {
       console.error("Failed to update path status", err);
+      showToast(getErrorMessage(err, "Couldn't update that path."), "error");
     }
   };
 
@@ -108,6 +114,7 @@ const LearningPathsPage = () => {
 
     return (
       <div className="min-h-screen bg-black text-cream">
+        <Toast />
         <div className="mx-auto max-w-4xl px-5 py-10 md:px-8">
           <button
             onClick={() => setActivePath(null)}
@@ -190,6 +197,7 @@ const LearningPathsPage = () => {
 
   return (
     <div className="min-h-screen bg-black text-cream">
+      <Toast />
       <div className="mx-auto max-w-6xl px-5 py-10 md:px-8">
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <MonoLabel>Guided curricula</MonoLabel>
@@ -244,9 +252,15 @@ const LearningPathsPage = () => {
                 {loading ? (
                   <p className="text-sm text-gray-400">Loading paths...</p>
                 ) : paths.length === 0 ? (
-                  <p className="rounded-[5px] border border-dashed border-white/10 p-6 text-center text-sm text-gray-400">
-                    No learning paths yet — generate your first one.
-                  </p>
+                  <div className="rounded-[18px] border border-cream/30 bg-black/20 p-10 text-center">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[18px] border border-cream/30">
+                      <SchoolRoundedIcon sx={{ fontSize: 24 }} className="text-cream" />
+                    </div>
+                    <p className="mt-5 text-base font-medium text-cream">No paths yet</p>
+                    <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-gray-500">
+                      Tell the AI what you want to learn on the left — you'll get a day-by-day checklist to work through.
+                    </p>
+                  </div>
                 ) : (
                   paths.map((path) => {
                     const doneCount = path.tasks?.filter((t) => t.isDone).length ?? 0;

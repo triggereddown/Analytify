@@ -13,7 +13,9 @@ import {
   calculateFocusStreak,
 } from "../analytics/analytics.service.js";
 import { getWorkLogForRange } from "../worklog/worklog.service.js";
+import { findWorkLogEntriesInRange } from "../worklog/worklog.repository.js";
 import { getActiveGoalsWithEntriesInRange } from "../goals/goals.service.js";
+import { findGoalsForUser } from "../goals/goals.repository.js";
 import { findActiveMemoryNotes } from "../memory/memory.repository.js";
 import { findLearningPathsForUser } from "../learning-path/learningPath.repository.js";
 import { prisma } from "../../config/prisma.js";
@@ -27,23 +29,47 @@ export const buildAiContext = async (userId: string): Promise<AiDbContext> => {
   distractionWindowStart.setUTCDate(distractionWindowStart.getUTCDate() - 7);
   distractionWindowStart.setUTCHours(0, 0, 0, 0);
 
-  const [profile, activeTasks, recentCompletedSessions, recentDistractions, streak, deepWork, burnout, nudgeState] =
-    await Promise.all([
-      findAiProfile(userId),
-      findActiveTasks(userId),
-      findRecentCompletedSessions(userId),
-      findRecentDistractions(userId, distractionWindowStart),
-      calculateFocusStreak(userId),
-      calculateDeepWorkScore(userId),
-      calculateBurnoutMetric(userId),
-      findAiNudgeState(userId),
-    ]);
+  // Same 7-day window as the distraction signal above — recent enough to be
+  // conversationally relevant, short enough to keep the prompt compact.
+  const workLogWindowStart = distractionWindowStart.toISOString().split("T")[0]!;
+  const today = new Date().toISOString().split("T")[0]!;
+
+  const [
+    profile,
+    activeTasks,
+    activeGoals,
+    recentWorkLog,
+    recentCompletedSessions,
+    recentDistractions,
+    streak,
+    deepWork,
+    burnout,
+    nudgeState,
+  ] = await Promise.all([
+    findAiProfile(userId),
+    findActiveTasks(userId),
+    findGoalsForUser(userId, "active"),
+    findWorkLogEntriesInRange(userId, workLogWindowStart, today),
+    findRecentCompletedSessions(userId),
+    findRecentDistractions(userId, distractionWindowStart),
+    calculateFocusStreak(userId),
+    calculateDeepWorkScore(userId),
+    calculateBurnoutMetric(userId),
+    findAiNudgeState(userId),
+  ]);
 
   const consistencyScore = await calculateConsistencyScore(userId);
 
   return {
     profile,
     activeTasks,
+    activeGoals: activeGoals.map((goal) => ({
+      id: goal.id,
+      title: goal.title,
+      description: goal.description,
+      status: goal.status,
+    })),
+    recentWorkLog: recentWorkLog.slice(0, 10).map((entry) => ({ title: entry.title, loggedDate: entry.loggedDate })),
     recentCompletedSessions,
     recentDistractions,
     streak,

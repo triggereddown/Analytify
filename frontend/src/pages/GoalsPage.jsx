@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import FlagRoundedIcon from "@mui/icons-material/FlagRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { useGoals } from "../features/worklog/hooks/useGoals";
-import { Card, FieldInput, FieldTextarea, MonoLabel, PrimaryButton, SectionHeading } from "../components/ui";
+import { Card, FieldInput, FieldTextarea, getErrorMessage, MonoLabel, PrimaryButton, SectionHeading, useToast } from "../components/ui";
 
 const STATUS_TABS = [
   { key: "active", label: "Active" },
@@ -26,6 +26,7 @@ const GoalsPage = () => {
   const [tab, setTab] = useState("active");
   const [form, setForm] = useState({ title: "", description: "", targetDate: "" });
   const [creating, setCreating] = useState(false);
+  const { showToast, Toast } = useToast();
 
   const visibleGoals = useMemo(() => goals.filter((g) => g.status === tab), [goals, tab]);
 
@@ -41,16 +42,29 @@ const GoalsPage = () => {
     try {
       await addGoal(form);
       setForm({ title: "", description: "", targetDate: "" });
+      showToast("Goal created");
       if (tab !== "active") await handleTab("active");
     } catch (err) {
       console.error("Failed to create goal", err);
+      showToast(getErrorMessage(err, "Couldn't create that goal."), "error");
     } finally {
       setCreating(false);
     }
   };
 
+  const handleStatusChange = async (goalId, status) => {
+    try {
+      await changeGoalStatus(goalId, status);
+      await handleTab(tab);
+    } catch (err) {
+      console.error("Failed to update goal status", err);
+      showToast(getErrorMessage(err, "Couldn't update that goal."), "error");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-cream">
+      <Toast />
       <div className="mx-auto max-w-6xl px-5 py-10 md:px-8">
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <MonoLabel>Long-term tracks</MonoLabel>
@@ -138,9 +152,17 @@ const GoalsPage = () => {
                 {loading ? (
                   <p className="text-sm text-gray-400">Loading goals...</p>
                 ) : visibleGoals.length === 0 ? (
-                  <p className="rounded-[5px] border border-dashed border-white/10 p-6 text-center text-sm text-gray-400">
-                    No {tab} goals yet.
-                  </p>
+                  <div className="rounded-[18px] border border-cream/30 bg-black/20 p-10 text-center">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[18px] border border-cream/30">
+                      <FlagRoundedIcon sx={{ fontSize: 24 }} className="text-cream" />
+                    </div>
+                    <p className="mt-5 text-base font-medium text-cream">No {tab} goals</p>
+                    <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-gray-500">
+                      {tab === "active"
+                        ? "Set your first long-term objective on the left."
+                        : `Goals you mark ${tab} will show up here.`}
+                    </p>
+                  </div>
                 ) : (
                   visibleGoals.map((goal) => (
                     <article
@@ -167,13 +189,13 @@ const GoalsPage = () => {
                       {goal.status === "active" && (
                         <div className="mt-4 flex gap-2">
                           <button
-                            onClick={() => changeGoalStatus(goal.id, "completed").then(() => handleTab(tab))}
+                            onClick={() => handleStatusChange(goal.id, "completed")}
                             className="rounded-full border border-emerald-400/30 px-3 py-1.5 font-almarai text-[10px] uppercase tracking-[0.08em] text-emerald-300"
                           >
                             Mark Completed
                           </button>
                           <button
-                            onClick={() => changeGoalStatus(goal.id, "abandoned").then(() => handleTab(tab))}
+                            onClick={() => handleStatusChange(goal.id, "abandoned")}
                             className="rounded-full border border-white/20 px-3 py-1.5 font-almarai text-[10px] uppercase tracking-[0.08em] text-gray-400 hover:text-cream"
                           >
                             Abandon

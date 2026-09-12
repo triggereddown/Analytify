@@ -6,6 +6,45 @@ import {
 } from "../api/profileApi";
 
 /**
+ * The actual distribution mechanism: a Shields.io-style badge (already
+ * rendered server-side at /api/public/:username/badge.svg) that spreads via
+ * README/site embeds, not link clicks. Markdown is the default because
+ * GitHub READMEs are the highest-leverage place for a "focus streak" badge
+ * to be seen by other developers.
+ */
+const BadgeEmbed = ({ username, onCopy }) => {
+  const badgeUrl = `${window.location.origin}/api/public/${username}/badge.svg`;
+  const profileUrl = `${window.location.origin}/u/${username}`;
+  const markdown = `[![focus streak](${badgeUrl})](${profileUrl})`;
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(markdown);
+      onCopy(true);
+    } catch {
+      onCopy(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-2 border-t border-white/5 pt-3">
+      <img src={badgeUrl} alt="focus streak badge" className="h-5 w-fit" />
+      <div className="flex items-center gap-2">
+        <code className="flex-1 min-w-0 truncate rounded-full bg-black/30 border border-white/10 px-3 py-1.5 text-[11px] text-gray-400">
+          {markdown}
+        </code>
+        <button
+          onClick={copy}
+          className="shrink-0 text-xs font-bold uppercase tracking-widest text-white bg-orange-600 hover:bg-orange-700 rounded-full px-3 py-1.5 transition-colors"
+        >
+          Copy
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/**
  * Lets the user claim a public username and toggle whether their
  * heatmap/streak is visible at /u/:username with no login required.
  * Self-contained: fetches its own state so it can be dropped into
@@ -128,14 +167,26 @@ const ShareProfileCard = () => {
       </button>
 
       {profile.isPublic && publicUrl && (
-        <a
-          href={publicUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="text-xs text-orange-500 hover:text-orange-400 truncate"
-        >
-          {publicUrl}
-        </a>
+        <>
+          <a
+            href={publicUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs text-orange-500 hover:text-orange-400 truncate"
+          >
+            {publicUrl}
+          </a>
+          <BadgeEmbed
+            username={profile.username}
+            onCopy={(ok) =>
+              setMessage(
+                ok
+                  ? { type: "success", text: "Badge markdown copied." }
+                  : { type: "error", text: "Couldn't copy — select and copy manually." }
+              )
+            }
+          />
+        </>
       )}
 
       {message && (

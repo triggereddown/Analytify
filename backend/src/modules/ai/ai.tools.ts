@@ -2,6 +2,7 @@ import { addTask } from "../tasks/tasks.service.js";
 import { addMemoryNote } from "../memory/memory.service.js";
 import { addGoal } from "../goals/goals.service.js";
 import { logWork } from "../worklog/worklog.service.js";
+import { searchMemoryNotes } from "../memory/memory.repository.js";
 import type { GrokTool } from "./ai.client.js";
 
 // This file is the bridge between "the model decided to act" and "something
@@ -88,6 +89,21 @@ export const chatTools: GrokTool[] = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "recall_memory",
+      description:
+        "Search the user's saved memory notes for anything relevant to what they're asking about. Use this whenever the user references something they may have told you before, asks 'what did I say about X', or the conversation would benefit from recalling past context before answering.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Keywords to search for in the user's notes." },
+        },
+        required: ["query"],
+      },
+    },
+  },
 ];
 
 type ToolExecutionResult = {
@@ -134,6 +150,17 @@ export const executeToolCall = async (
     case "log_work": {
       const entry = await logWork({ userId, title: args.title, description: args.description });
       return { toolName, resultSummary: `Logged work entry "${entry.title}" for ${entry.loggedDate}.` };
+    }
+    case "recall_memory": {
+      const matches = await searchMemoryNotes(userId, String(args.query ?? ""));
+      if (matches.length === 0) {
+        return { toolName, resultSummary: `No saved notes matched "${args.query}".` };
+      }
+      const summary = matches
+        .slice(0, 5)
+        .map((note) => `- [${note.category}] ${note.content}`)
+        .join("\n");
+      return { toolName, resultSummary: `Found ${matches.length} matching note(s):\n${summary}` };
     }
     default:
       return { toolName, resultSummary: `Unknown tool "${toolName}" — no action taken.` };

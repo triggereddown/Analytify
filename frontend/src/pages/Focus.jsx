@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFocusSession } from "../features/pomodoro/hooks/useFocusSession";
@@ -9,6 +9,9 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import FlagCircleIcon from "@mui/icons-material/FlagCircle";
 import StopCircleIcon from "@mui/icons-material/StopCircle";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import { fetchSessionPlan } from "../api/analyticsApi";
+import { useToast } from "../components/ui";
 
 // ─── Shared motion props ────────────────────────────────────────────────────
 const btnClick = { whileHover: { y: -2 }, whileTap: { scale: 0.97 } };
@@ -281,6 +284,36 @@ const EndStateCard = ({ sessionState, onNewSession, onDashboard }) => {
   );
 };
 
+/**
+ * Smart session planner — advisory-only nudge (duration + best hour) built
+ * from existing burnout/peak-hours analytics. Idle state only; doesn't
+ * touch the timer, since the timer's target length isn't currently
+ * configurable end-to-end (see useFocusSession's fixed TOTAL_SECONDS).
+ */
+const SessionPlanCard = () => {
+  const [plan, setPlan] = useState(null);
+
+  useEffect(() => {
+    fetchSessionPlan()
+      .then((res) => setPlan(res.data))
+      .catch(() => setPlan(null));
+  }, []);
+
+  if (!plan) return null;
+
+  return (
+    <div className="mb-6 text-left bg-white/[0.03] border border-white/10 rounded-2xl p-4 flex gap-3">
+      <AutoAwesomeIcon className="text-cream shrink-0 mt-0.5" sx={{ fontSize: 18 }} />
+      <div>
+        <p className="text-[11px] uppercase tracking-widest text-gray-400 font-bold mb-1">
+          Suggested: {plan.suggestedDurationMinutes} min
+        </p>
+        <p className="text-xs text-gray-400 leading-relaxed">{plan.reasoning}</p>
+      </div>
+    </div>
+  );
+};
+
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 const Focus = () => {
@@ -292,6 +325,7 @@ const Focus = () => {
     seconds,
     isRunning,
     recovered,
+    actionError,
     start,
     pause,
     resume,
@@ -299,9 +333,17 @@ const Focus = () => {
     complete,
   } = useFocusSession();
   const { tasks, loading: tasksLoading, addTask } = useTasks();
+  const { showToast, Toast } = useToast();
 
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [distractionPromptSessionId, setDistractionPromptSessionId] = useState(null);
+
+  // useFocusSession sets actionError on failed start/pause/resume/
+  // abandon/complete — surface it the moment it changes rather than
+  // polling, since these are the app's core loop and must never fail silently.
+  useEffect(() => {
+    if (actionError) showToast(actionError, "error");
+  }, [actionError]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isEndState = ["completed", "abandoned", "expired"].includes(sessionState);
   const isIdle = sessionState === "idle" || sessionState === "created";
@@ -322,6 +364,7 @@ const Focus = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] bg-gradient-to-br from-[#0a0a0a] via-[#0f0f0f] to-[#161616] text-cream selection:bg-cream/30 overflow-hidden relative">
+      <Toast />
       <BackgroundOrbs />
 
       <main className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] p-6 relative z-10">
@@ -353,6 +396,9 @@ const Focus = () => {
               <h3 className="font-instrument text-2xl italic tracking-tight text-cream mb-6">
                 Deep Work
               </h3>
+
+              {/* Smart session plan — idle only */}
+              {isIdle && <SessionPlanCard />}
 
               {/* Task picker — idle only, hidden once a session exists */}
               {isIdle && (

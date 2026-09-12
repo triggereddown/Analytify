@@ -1,6 +1,7 @@
 import express from "express";
 import { authMiddleware } from "../../middleware/auth.middleware.js";
 import {
+  approve,
   captureNote,
   chat,
   checkIn,
@@ -19,6 +20,7 @@ router.use(authMiddleware);
 router.get("/context", context);
 router.get("/report", report);
 router.post("/chat", chat);
+router.post("/chat/approve", approve);
 router.delete("/chat", clearChatHistoryHandler);
 router.post("/memory/capture", captureNote);
 router.post("/clean-command", cleanCommand);

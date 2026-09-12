@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import ErrorOutlineRoundedIcon from "@mui/icons-material/ErrorOutlineRounded";
 
 // Shared identity primitives — matches Landing.jsx's cream/cinematic system:
 // black canvas, hairline borders, Almarai as the base face, Instrument
@@ -67,3 +70,60 @@ export const FieldTextarea = (props) => (
     className={`font-almarai w-full rounded-lg border border-white/10 bg-black/40 px-4 py-3 text-sm text-cream outline-none focus:border-cream/40 ${props.className ?? ""}`}
   />
 );
+
+/**
+ * Turns an axios error into one readable line — falls back through the
+ * backend's { message } body, then a generic network-vs-server guess,
+ * since a raw "Request failed with status code 400" means nothing to a user.
+ */
+export const getErrorMessage = (err, fallback = "Something went wrong. Please try again.") => {
+  if (err?.response?.data?.message) return err.response.data.message;
+  if (err?.request && !err?.response) return "Can't reach the server — check your connection.";
+  return fallback;
+};
+
+/**
+ * Brief bottom-center confirmation toast for actions that otherwise happen
+ * silently (a form that just clears itself, or a failed request that only
+ * logged to the console). Call `showToast(message)` for success or
+ * `showToast(message, "error")` for a failure — it self-dismisses after
+ * ~2.2s (errors linger a bit longer so they're actually readable).
+ */
+export const useToast = () => {
+  const [toast, setToast] = useState(null); // { message, tone }
+
+  useEffect(() => {
+    if (!toast) return undefined;
+    const timer = setTimeout(() => setToast(null), toast.tone === "error" ? 3200 : 2200);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  const showToast = (message, tone = "success") => setToast({ message, tone });
+
+  const Toast = () => (
+    <AnimatePresence>
+      {toast && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 12 }}
+          transition={{ duration: 0.2 }}
+          className={`fixed bottom-6 left-1/2 z-50 flex max-w-sm -translate-x-1/2 items-center gap-2 rounded-full border px-5 py-3 font-almarai text-sm shadow-2xl ${
+            toast.tone === "error"
+              ? "border-red-400/30 bg-[#1a1010] text-red-200"
+              : "border-emerald-400/30 bg-[#111] text-emerald-200"
+          }`}
+        >
+          {toast.tone === "error" ? (
+            <ErrorOutlineRoundedIcon sx={{ fontSize: 16 }} />
+          ) : (
+            <CheckCircleRoundedIcon sx={{ fontSize: 16 }} />
+          )}
+          {toast.message}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
+  return { showToast, Toast };
+};

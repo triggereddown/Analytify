@@ -30,6 +30,7 @@ export const useFocusSession = () => {
   const [secondsLeft,  setSecondsLeft]  = useState(TOTAL_SECONDS);
   const [recovered,    setRecovered]    = useState(false);    // "Recovered" banner
   const [activeTaskId, setActiveTaskId] = useState(null);     // task linked to the current session
+  const [actionError,  setActionError]  = useState(null);     // last failed start/pause/resume/abandon/complete, for the page to surface
 
   // ─── Refs ──────────────────────────────────────────────────────────────────
   const intervalRef     = useRef(null);
@@ -193,9 +194,11 @@ export const useFocusSession = () => {
       // Begin (created → running)
       await beginPomodoroSession({ sessionId: id });
       setSessionState("running");
+      setActionError(null);
       startCountdown(secondsLeft);
     } catch (err) {
       console.error("Failed to start session", err);
+      setActionError("Couldn't start the session — check your connection and try again.");
     }
   }, [sessionState, sessionId, secondsLeft, startCountdown]);
 
@@ -210,9 +213,11 @@ export const useFocusSession = () => {
     try {
       await beginPomodoroSession({ sessionId });
       setSessionState("running");
+      setActionError(null);
       startCountdown(secondsLeft);
     } catch (err) {
       console.error("Failed to resume session", err);
+      setActionError("Couldn't resume the session — check your connection and try again.");
     }
   }, [sessionState, sessionId, secondsLeft, startCountdown]);
 
@@ -230,12 +235,14 @@ export const useFocusSession = () => {
     try {
       await pausePomodoroSession({ sessionId });
       setSessionState("paused");
+      setActionError(null);
 
       // Re-sync secondsLeft from backend after pause is committed
       const res = await fetchActiveSession();
       if (res.data) setSecondsLeft(res.data.secondsLeft);
     } catch (err) {
       console.error("Failed to pause session", err);
+      setActionError("Couldn't pause — resumed your timer instead.");
       // Re-start countdown if pause API failed (rollback UI)
       startCountdown(secondsLeft);
       setSessionState("running");
@@ -255,10 +262,15 @@ export const useFocusSession = () => {
       await abandonPomodoroSession({ sessionId });
       clearSessionId();
       setSessionState("abandoned");
+      setActionError(null);
     } catch (err) {
       console.error("Failed to abandon session", err);
+      setActionError("Couldn't abandon the session on the server — tap Abandon again to retry.");
+      // Leave sessionState as it was (running/paused) rather than stuck with
+      // a stopped countdown and no valid state — the button stays actionable.
+      if (sessionState === "running") startCountdown(secondsLeft);
     }
-  }, [sessionState, sessionId, stopCountdown]);
+  }, [sessionState, sessionId, secondsLeft, stopCountdown, startCountdown]);
 
   /**
    * COMPLETE: manual early completion.
@@ -274,10 +286,15 @@ export const useFocusSession = () => {
       clearSessionId();
       if (audioRef.current) audioRef.current.play().catch(() => {});
       setSessionState("completed");
+      setActionError(null);
     } catch (err) {
       console.error("Failed to complete session", err);
+      setActionError("Couldn't save the completed session — tap Complete again to retry.");
+      // Same reasoning as abandon: don't strand the timer stopped in a
+      // state that no longer matches the (unsaved) backend truth.
+      if (sessionState === "running") startCountdown(secondsLeft);
     }
-  }, [sessionState, sessionId, stopCountdown]);
+  }, [sessionState, sessionId, secondsLeft, stopCountdown, startCountdown]);
 
   // ─── Derived display values ────────────────────────────────────────────────
   const minutes = Math.floor(secondsLeft / 60);
@@ -293,6 +310,7 @@ export const useFocusSession = () => {
     isRunning,
     recovered,
     activeTaskId,
+    actionError,
 
     // Actions
     start,

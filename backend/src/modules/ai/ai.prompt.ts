@@ -30,6 +30,18 @@ export const buildSystemPrompt = (context: AiDbContext): string => {
           .join("\n")
       : "No active tasks found.";
 
+  const goalLines =
+    context.activeGoals.length > 0
+      ? context.activeGoals
+          .map((goal, index) => `${index + 1}. ${goal.title}${goal.description ? ` — ${goal.description}` : ""}`)
+          .join("\n")
+      : "No active goals found.";
+
+  const workLogLines =
+    context.recentWorkLog.length > 0
+      ? context.recentWorkLog.map((entry) => `${entry.loggedDate}: ${entry.title}`).join("\n")
+      : "No work logged in the last 7 days.";
+
   const sessionLines =
     context.recentCompletedSessions.length > 0
       ? context.recentCompletedSessions
@@ -57,7 +69,8 @@ export const buildSystemPrompt = (context: AiDbContext): string => {
     "If the user asks to automate a task, break it into clear steps, confirm risky assumptions, and offer an action plan.",
     "If the user's workload or burnout pattern looks high, respond with care and simplicity rather than pressure.",
     "",
-    "You have tools available (create_task, capture_memory_note, create_goal, log_work). USE them directly whenever the user confirms or clearly requests an action — do not just describe what you would do, actually call the tool.",
+    "You have tools available (create_task, capture_memory_note, create_goal, log_work, recall_memory). USE them directly whenever the user confirms or clearly requests an action — do not just describe what you would do, actually call the tool.",
+    "Active goals and recent work log are already included below — only call recall_memory for older context not already shown here.",
     "If you already asked a question (e.g. 'want me to create a task for this?') and the user replies affirmatively ('yes', 'sure', 'do it'), call the appropriate tool immediately using the most recent concrete subject from the conversation — do not ask the same question again or re-summarize unrelated context.",
     "Only ask a follow-up question first if the action is genuinely ambiguous (e.g. you don't yet know what the task title should be).",
     "After a tool call succeeds, confirm briefly in plain language — do not repeat the tool's raw output verbatim.",
@@ -67,6 +80,12 @@ export const buildSystemPrompt = (context: AiDbContext): string => {
     "",
     "=== Current Work ===",
     taskLines,
+    "",
+    "=== Active Goals ===",
+    goalLines,
+    "",
+    "=== Recent Work Log (last 7 days) ===",
+    workLogLines,
     "",
     "=== Recent Completion History ===",
     sessionLines,
@@ -86,6 +105,63 @@ export const buildSystemPrompt = (context: AiDbContext): string => {
     `Burnout nudge dismissed score: ${context.nudgeDismissal?.burnoutNudgeDismissedScore ?? "none"}`,
   ].join("\n");
 };
+
+/**
+ * The planning checkpoint, run once before the tool-calling loop starts
+ * (see ai.service.ts chatWithAi). Cheap and always-on: most messages are
+ * plain conversation with no plan needed, so this asks the model to say so
+ * explicitly (steps=[]) rather than skipping planning based on a guess
+ * about which messages "look" actionable — that guess would itself need
+ * the same judgment this call already makes.
+ */
+export const buildPlanningPrompt = (userRequest: string): string =>
+  [
+    "You are a silent planning checkpoint inside an AI agent, not the assistant the user sees.",
+    "Break the user's request below into the concrete steps needed to fulfill it, using ONLY the tools actually available:",
+    "- create_task(title) — a standalone active task. Does not accept notes or descriptions.",
+    "- capture_memory_note(content, category, tags) — a standalone freeform note. NOT attached to any task or goal.",
+    "- create_goal(title, description) — a long-term goal, optionally with a description.",
+    "- log_work(title, description) — a work log entry, evidence of something already done.",
+    "- recall_memory(query) — search past notes.",
+    "Each step must map to exactly one of these tools' real capabilities — do not phrase a step as attaching, linking, or combining data across tools that don't support it (e.g. a note cannot be 'added to' a task).",
+    "Respond with ONLY a JSON object, no prose, no markdown fences:",
+    '{ "steps": string[] }',
+    "- If the request is plain conversation, a question you can answer directly, or needs no action, return steps: [].",
+    "- Keep each step to one short phrase — this is an internal plan, not shown to the user verbatim.",
+    "",
+    `User's request: ${userRequest}`,
+  ].join("\n");
+
+/**
+ * The reflection checkpoint in the chat agent loop (see ai.service.ts
+ * chatWithAi). After a round of tool calls, this asks the model to judge
+ * its OWN progress against the user's actual request — separate from the
+ * main conversation so the judgment isn't biased by "what should I say
+ * next conversationally," only "do I actually have enough to answer."
+ * Kept deliberately terse (one JSON object) since this call happens on
+ * every tool round and doesn't need conversational tone.
+ */
+export const buildReflectionPrompt = (userRequest: string, plan: string[], gatheredSoFar: string): string =>
+  [
+    "You are a silent planning checkpoint inside an AI agent, not the assistant the user sees.",
+    "Judge whether enough information/actions have been gathered to fully answer the user's request below.",
+    "Respond with ONLY a JSON object, no prose, no markdown fences:",
+    '{ "sufficient": boolean, "reason": string, "nextStep": string | null }',
+    "- sufficient=true means the agent should now write its final answer.",
+    "- sufficient=false means it should gather more (nextStep briefly says what).",
+    "- reason is a one-sentence justification, for logging/debugging, not shown to the user.",
+    "Judge against the plan below, not just the raw request — check off each planned step against what's been done.",
+    "A step the user explicitly REJECTED (see 'Rejected by user' entries below) is DONE — the user's decision is the final outcome for that step. sufficient=true if that's the only remaining step. Never suggest retrying, re-confirming, or re-asking about a rejected action.",
+    "Be honest and critical — do not say sufficient=true just because some tool calls were made.",
+    "",
+    `User's original request: ${userRequest}`,
+    "",
+    "=== Plan formed at the start of this turn ===",
+    plan.length > 0 ? plan.map((step, i) => `${i + 1}. ${step}`).join("\n") : "No plan was needed for this request.",
+    "",
+    "=== What the agent has gathered/done so far this turn ===",
+    gatheredSoFar || "Nothing yet.",
+  ].join("\n");
 
 /**
  * This prompt bans invented wins on purpose because the output may be pasted

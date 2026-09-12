@@ -10,6 +10,10 @@ import TaskAltRoundedIcon from "@mui/icons-material/TaskAltRounded";
 import FlagRoundedIcon from "@mui/icons-material/FlagRounded";
 import PsychologyRoundedIcon from "@mui/icons-material/PsychologyRounded";
 import SchoolRoundedIcon from "@mui/icons-material/SchoolRounded";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import RemoveRoundedIcon from "@mui/icons-material/RemoveRounded";
+import AutoGraphRoundedIcon from "@mui/icons-material/AutoGraphRounded";
+import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
 import { WordsPullUp, WordsPullUpMultiStyle } from "../components/text-animations";
 
 const NAV_LINKS = ["Product", "Features"];
@@ -99,16 +103,16 @@ const WorkspaceDropdown = ({ isLoggedIn, navigate }) => {
 
 const CARD_EASE = [0.22, 1, 0.36, 1];
 
-/** Staggered scale+fade entrance for the Features grid — fires once, on first view. */
+/** Staggered fade+rise entrance for the Features grid — fires once, on first view. */
 const FeatureCard = ({ index, className = "", children }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.15, ease: CARD_EASE }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay: index * 0.1, ease: CARD_EASE }}
       className={className}
     >
       {children}
@@ -116,34 +120,133 @@ const FeatureCard = ({ index, className = "", children }) => {
   );
 };
 
-/** The recurring checklist-card layout used by three of the four Features cards. */
-const ChecklistCard = ({ index, title, items }) => (
+/**
+ * Icon-led feature card — sized to its own content instead of a fixed
+ * height, so a 3-item checklist doesn't inherit the same box height as an
+ * image card and strand a slab of empty space beneath it. Icon in a bordered
+ * tile (matching the app's own sidebar icon treatment) replaces the plain
+ * numbered label as the visual anchor.
+ */
+const ChecklistCard = ({ index, icon: Icon, title, items, className = "" }) => (
   <FeatureCard
     index={index}
-    className="flex flex-col justify-between rounded-2xl bg-[#212121] p-6 lg:h-[480px]"
+    className={`flex flex-col rounded-2xl border border-white/[0.06] bg-[#161616] p-7 ${className}`}
   >
-    <div>
-      <span className="font-almarai text-xs text-gray-500">0{index + 1}</span>
-      <h3 className="font-almarai mt-2 text-xl font-bold text-cream">{title}</h3>
-      <ul className="mt-6 space-y-3">
-        {items.map((item) => (
-          <li key={item} className="flex items-start gap-2.5 text-sm text-gray-400">
-            <CheckRoundedIcon sx={{ fontSize: 16 }} className="mt-0.5 shrink-0 text-cream" />
-            {item}
-          </li>
-        ))}
-      </ul>
+    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03]">
+      <Icon sx={{ fontSize: 20 }} className="text-cream" />
     </div>
-    <button className="mt-8 inline-flex items-center gap-2 self-start font-almarai text-sm font-medium text-cream">
-      Learn more
-      <ArrowForwardRoundedIcon sx={{ fontSize: 16, transform: "rotate(-45deg)" }} />
-    </button>
+    <h3 className="font-almarai mt-5 text-lg font-bold text-cream">{title}</h3>
+    <ul className="mt-4 space-y-2.5">
+      {items.map((item) => (
+        <li key={item} className="flex items-start gap-2.5 text-sm leading-6 text-gray-400">
+          <CheckRoundedIcon sx={{ fontSize: 15 }} className="mt-0.5 shrink-0 text-cream/70" />
+          {item}
+        </li>
+      ))}
+    </ul>
   </FeatureCard>
 );
+
+/**
+ * The recurring signature motif for everything below the hero: real product
+ * screenshots, always shown in the same "browser chrome" frame (traffic-light
+ * dots + a URL pill) so four different screenshots read as one consistent,
+ * designed system instead of randomly pasted images — same idea as the
+ * reference's repeated gradient-photo treatment, adapted to an app that has
+ * real UI to show instead of stock photography.
+ */
+const BrowserFrame = ({ src, alt, path = "app.analytify.dev", className = "" }) => (
+  <div className={`overflow-hidden rounded-2xl border border-white/10 bg-[#0d0d0d] shadow-[0_40px_100px_rgba(0,0,0,0.55)] ${className}`}>
+    <div className="flex items-center gap-3 border-b border-white/10 bg-[#161616] px-4 py-3">
+      <div className="flex gap-1.5">
+        <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
+        <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
+        <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
+      </div>
+      <div className="mx-auto flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1 font-almarai text-[10px] text-gray-500">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/70" />
+        {path}
+      </div>
+    </div>
+    <img src={src} alt={alt} className="block w-full" loading="lazy" />
+  </div>
+);
+
+/** Fade+rise entrance wrapper, fires once on first scroll into view — used for every below-the-hero section so motion reads as one consistent system. */
+const Reveal = ({ children, delay = 0, className = "" }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 24 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, delay, ease: CARD_EASE }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+const HOW_IT_WORKS_STEPS = [
+  {
+    step: "01",
+    title: "Start a session",
+    description: "Link it to a task or just hit go — the timer runs, no setup required.",
+    img: "/screens/focus-idle.png",
+    alt: "Analytify focus session start screen with linked task picker",
+  },
+  {
+    step: "02",
+    title: "Stay honest, automatically",
+    description: "Pauses, distractions, and interruptions are all logged as they happen — not self-reported after the fact.",
+    img: "/screens/focus-running.png",
+    alt: "Analytify running focus timer",
+  },
+  {
+    step: "03",
+    title: "See the real story",
+    description: "Every session rolls into a Deep Work Score, a burnout signal, and a 365-day heatmap of how you actually work.",
+    img: "/screens/dashboard-heatmap.png",
+    alt: "Analytify focus heatmap showing a year of session history",
+  },
+];
+
+const PROOF_METRICS = [
+  { value: "7", label: "Core modules", caption: "Focus, Tasks, Goals, Memory, Learning Paths, Work Journal, AI Coach" },
+  { value: "365", label: "Day heatmap", caption: "Full-year focus history, not a 7-day vanity window" },
+  { value: "3", label: "Signals per session", caption: "Deep Work Score, burnout risk, and peak-hour tracking" },
+  { value: "0", label: "Manual logging", caption: "Distraction detection is automatic, not self-reported" },
+];
+
+const FAQ_ITEMS = [
+  {
+    q: "How is this different from a regular Pomodoro timer?",
+    a: "Most timers stop at the beep. Analytify turns every session into structured data — a Deep Work Score weighted by length, interruptions, and consistency, plus a burnout detector comparing this week against last week. The timer is the input; the analytics layer is the product.",
+  },
+  {
+    q: "Does it require manual logging to be useful?",
+    a: "No. Pauses, abandons, and completions are captured automatically as lifecycle events. The optional distraction log and work journal add richer context, but the core metrics work from timer usage alone.",
+  },
+  {
+    q: "What's the AI Coach actually doing?",
+    a: "It's a tool-using assistant wired directly into the data model — it can create tasks, goals, and reminders mid-conversation via quick commands, and generate day-by-day learning paths, not just answer questions about your stats.",
+  },
+  {
+    q: "Is this open to individuals or built for teams?",
+    a: "Today it's single-player by design — every feature is about making one person's focus data useful to them, not a leaderboard. Team and workspace features are on the roadmap, not a retrofit.",
+  },
+  {
+    q: "What's the stack?",
+    a: "Postgres via Prisma, an Express/Node API, a Vite/React frontend, and a Redis-backed job queue for analytics — built to run on free-tier infrastructure end to end.",
+  },
+];
 
 const Landing = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [openFaq, setOpenFaq] = useState(1); // second item pre-opened, matching the reference's FAQ treatment
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -321,8 +424,57 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* ═══ PRODUCT PREVIEW ════════════════════════════════════════════
+          The anchor visual for the whole page: the real dashboard, framed
+          in the browser-chrome motif every screenshot below reuses. This
+          replaces the old dashBoard.png card buried inside the feature
+          grid — a real product deserves one large, unmistakable "here it
+          is" moment, not a thumbnail competing with three text cards. */}
+      <section className="bg-black px-4 py-4 md:px-6">
+        <Reveal className="mx-auto max-w-6xl">
+          <BrowserFrame
+            src="/screens/dashboard-full.png"
+            alt="Analytify dashboard: streak, deep work score, consistency, burnout risk, and session charts"
+            path="app.analytify.dev/dashboard"
+          />
+        </Reveal>
+      </section>
+
+      {/* ═══ HOW IT WORKS ═══════════════════════════════════════════════ */}
+      <section className="bg-black px-4 py-20 md:px-6 md:py-32">
+        <div className="mx-auto max-w-6xl">
+          <Reveal>
+            <span className="font-almarai text-[10px] uppercase tracking-[0.2em] text-gray-500 sm:text-xs">
+              How it works
+            </span>
+            <h2 className="mt-4 max-w-xl text-3xl leading-[1.05] font-normal text-cream sm:text-4xl md:text-5xl">
+              Three steps. No manual bookkeeping.
+            </h2>
+          </Reveal>
+
+          <div className="mt-14 space-y-16 md:space-y-24">
+            {HOW_IT_WORKS_STEPS.map((item, i) => (
+              <Reveal key={item.step} delay={0.05}>
+                <div
+                  className={`grid grid-cols-1 items-center gap-8 md:grid-cols-2 md:gap-14 ${
+                    i % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""
+                  }`}
+                >
+                  <BrowserFrame src={item.img} alt={item.alt} path={`app.analytify.dev/${item.step === "01" ? "focus" : item.step === "02" ? "focus" : "dashboard"}`} />
+                  <div>
+                    <span className="font-almarai text-xs text-gray-500">{item.step}</span>
+                    <h3 className="font-almarai mt-3 text-2xl font-bold text-cream md:text-3xl">{item.title}</h3>
+                    <p className="mt-4 max-w-md text-sm leading-7 text-gray-400 md:text-base">{item.description}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══ FEATURES ═══════════════════════════════════════════════════ */}
-      <section id="features" className="relative min-h-screen overflow-hidden bg-black px-4 py-20 md:px-6 md:py-28">
+      <section id="features" className="relative overflow-hidden bg-black px-4 py-20 md:px-6 md:py-28">
         <div className="bg-noise pointer-events-none absolute inset-0 opacity-[0.15]" />
 
         <div className="relative mx-auto max-w-6xl text-center">
@@ -339,31 +491,31 @@ const Landing = () => {
             />
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-3 sm:gap-2 md:grid-cols-2 md:gap-1 lg:grid-cols-4">
-            <FeatureCard
-              index={0}
-              className="flex flex-col overflow-hidden rounded-2xl bg-[#212121] lg:h-[480px] lg:col-span-2"
-            >
-              <div className="p-6 pb-0">
-                <span className="font-almarai text-xs text-gray-500">01</span>
-                <h3 className="font-almarai mt-2 text-xl font-bold text-cream">The real dashboard</h3>
+          {/* Hero feature: the heatmap runs edge-to-edge with the caption
+              below it as a proper strip, not floating in a fixed-height box
+              with dead air underneath — the image dictates the card's
+              height instead of the other way around. */}
+          <FeatureCard index={0} className="mt-12 overflow-hidden rounded-2xl border border-white/[0.06] bg-[#161616] text-left">
+            <img
+              src="/screens/dashboard-heatmap.png"
+              alt="Analytify focus heatmap — every day of the last year, at a glance"
+              className="block w-full"
+            />
+            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/[0.06] p-7">
+              <div>
+                <span className="font-almarai text-xs text-gray-500">01 · Analytics</span>
+                <h3 className="font-almarai mt-1.5 text-xl font-bold text-cream">A year of focus, mapped</h3>
               </div>
-              {/* object-contain — this is a screenshot with real, readable
-                  text baked into the image. object-cover (even anchored)
-                  still crops one axis and cuts off words; object-contain
-                  is the only choice that never truncates the content,
-                  letterboxing on a solid card background instead. */}
-              <div className="mt-4 flex flex-1 items-center justify-center overflow-hidden rounded-t-xl bg-black/40 p-4">
-                <img
-                  src="/dashBoard.png"
-                  alt="Analytify dashboard showing streaks, deep work score, and session outcomes"
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </FeatureCard>
+              <p className="max-w-sm text-sm leading-6 text-gray-400">
+                Every completed session lands on the map the same day it happens — no manual logging, no gaps.
+              </p>
+            </div>
+          </FeatureCard>
 
+          <div className="mt-4 grid grid-cols-1 gap-4 text-left md:grid-cols-3">
             <ChecklistCard
               index={1}
+              icon={AutoGraphRoundedIcon}
               title="Deep Work Score"
               items={[
                 "Weighted 40% by session length",
@@ -375,6 +527,7 @@ const Landing = () => {
 
             <ChecklistCard
               index={2}
+              icon={PsychologyRoundedIcon}
               title="AI Coach"
               items={[
                 "Creates tasks and goals directly from chat",
@@ -385,6 +538,7 @@ const Landing = () => {
 
             <ChecklistCard
               index={3}
+              icon={LocalFireDepartmentRoundedIcon}
               title="Streaks & Recovery"
               items={[
                 "Freeze tokens auto-cover one missed day",
@@ -396,8 +550,140 @@ const Landing = () => {
         </div>
       </section>
 
-      <footer className="border-t border-white/10 bg-black px-6 py-10 text-center">
-        <p className="text-xs text-gray-500">© 2026 Analytify. All rights reserved.</p>
+      {/* ═══ PROOF / METRICS ════════════════════════════════════════════
+          Honest product-depth numbers, not fabricated traction — Analytify
+          is pre-launch, so this band proves engineering substance (what's
+          actually built) rather than claiming user/revenue numbers it
+          doesn't have yet. */}
+      <section className="bg-black px-4 py-16 md:px-6">
+        <Reveal className="mx-auto max-w-6xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#151310] via-[#101010] to-[#0a0a0a] px-6 py-14 md:px-12 md:py-16">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-6">
+            {PROOF_METRICS.map((metric) => (
+              <div key={metric.label}>
+                <span className="font-instrument text-4xl italic text-cream md:text-5xl">{metric.value}</span>
+                <p className="font-almarai mt-2 text-xs font-bold tracking-wide text-cream/80 uppercase">{metric.label}</p>
+                <p className="mt-2 text-xs leading-5 text-gray-500">{metric.caption}</p>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ═══ FAQ ═════════════════════════════════════════════════════════ */}
+      <section className="bg-black px-4 py-20 md:px-6 md:py-28">
+        <div className="mx-auto max-w-3xl">
+          <Reveal className="text-center">
+            <h2 className="font-instrument text-3xl italic text-cream md:text-4xl">FAQ</h2>
+            <p className="mt-3 text-sm text-gray-500">Everything worth knowing before you dig in.</p>
+          </Reveal>
+
+          <div className="mt-10 space-y-2">
+            {FAQ_ITEMS.map((item, i) => {
+              const isOpen = openFaq === i;
+              return (
+                <Reveal key={item.q} delay={i * 0.03}>
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : i)}
+                    className={`w-full rounded-xl border px-5 py-4 text-left transition-all ${
+                      isOpen ? "border-cream/30 bg-[#141210]" : "border-white/10 bg-[#0d0d0d] hover:border-white/20"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <span className={`font-almarai text-sm font-medium ${isOpen ? "text-cream" : "text-gray-200"}`}>
+                        {item.q}
+                      </span>
+                      {isOpen ? (
+                        <RemoveRoundedIcon sx={{ fontSize: 18 }} className="shrink-0 text-cream" />
+                      ) : (
+                        <AddRoundedIcon sx={{ fontSize: 18 }} className="shrink-0 text-gray-500" />
+                      )}
+                    </div>
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25, ease: CARD_EASE }}
+                          className="overflow-hidden"
+                        >
+                          <p className="pt-3 text-sm leading-6 text-gray-400">{item.a}</p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </button>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ CLOSING CTA ════════════════════════════════════════════════ */}
+      <section className="bg-black px-4 pb-20 md:px-6">
+        <Reveal className="mx-auto max-w-6xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#1a1712] via-[#141210] to-[#0a0a0a] px-6 py-16 text-center md:px-12 md:py-24">
+          <AutoGraphRoundedIcon sx={{ fontSize: 32 }} className="mx-auto text-cream" />
+          <h2 className="mt-6 text-3xl leading-tight font-normal text-cream sm:text-4xl md:text-5xl">
+            Start building your <span className="font-instrument italic">evidence.</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-gray-400">
+            No credit card, no setup — just a timer that actually remembers how you work.
+          </p>
+          <motion.button
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate(isLoggedIn ? "/focus" : "/register")}
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-cream px-7 py-3 font-medium text-black transition-all hover:gap-3"
+          >
+            {isLoggedIn ? "Go to Focus" : "Start focusing"}
+            <ArrowForwardRoundedIcon sx={{ fontSize: 18 }} />
+          </motion.button>
+        </Reveal>
+      </section>
+
+      {/* ═══ FOOTER ═══════════════════════════════════════════════════════ */}
+      <footer className="border-t border-white/10 bg-black px-6 py-14 md:px-10">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-10 md:grid-cols-4">
+          <div className="col-span-2 md:col-span-1">
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-4 rounded bg-cream" />
+              <span className="font-almarai text-sm font-bold tracking-tight text-cream uppercase">Analytify</span>
+            </div>
+            <p className="mt-4 max-w-xs text-xs leading-6 text-gray-500">
+              Focus analytics for people who take deep work seriously.
+            </p>
+          </div>
+
+          <div>
+            <p className="font-almarai text-[11px] font-bold tracking-widest text-gray-500 uppercase">Product</p>
+            <ul className="mt-4 space-y-2.5 text-xs text-gray-400">
+              <li><a href="#product" className="hover:text-cream">Overview</a></li>
+              <li><a href="#features" className="hover:text-cream">Features</a></li>
+              <li><button onClick={() => navigate(isLoggedIn ? "/dashboard" : "/login")} className="hover:text-cream">Dashboard</button></li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-almarai text-[11px] font-bold tracking-widest text-gray-500 uppercase">Account</p>
+            <ul className="mt-4 space-y-2.5 text-xs text-gray-400">
+              <li><button onClick={() => navigate("/login")} className="hover:text-cream">Sign in</button></li>
+              <li><button onClick={() => navigate("/register")} className="hover:text-cream">Register</button></li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-almarai text-[11px] font-bold tracking-widest text-gray-500 uppercase">Legal</p>
+            <ul className="mt-4 space-y-2.5 text-xs text-gray-400">
+              <li><span className="cursor-default opacity-60">Privacy Policy</span></li>
+              <li><span className="cursor-default opacity-60">Terms of Service</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mx-auto mt-12 flex max-w-6xl items-center justify-between border-t border-white/10 pt-6">
+          <p className="text-xs text-gray-500">© 2026 Analytify. All rights reserved.</p>
+          <LocalFireDepartmentRoundedIcon sx={{ fontSize: 16 }} className="text-gray-700" />
+        </div>
       </footer>
     </div>
   );

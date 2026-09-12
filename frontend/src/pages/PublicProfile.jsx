@@ -4,6 +4,8 @@ import Heatmap from "../components/Heatmap";
 import { fetchPublicProfile } from "../api/publicApi";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 /**
  * Read-only, unauthenticated profile page at /u/:username.
@@ -15,6 +17,16 @@ const PublicProfile = () => {
   const { username } = useParams();
   const [profile, setProfile] = useState(null);
   const [status, setStatus] = useState("loading"); // loading | ready | not-found | error
+  const [copied, setCopied] = useState(false);
+
+  const badgeUrl = `${window.location.origin}/api/public/${username}/badge.svg`;
+  const embedSnippet = `[![Focus streak](${badgeUrl})](${window.location.origin}/u/${username})`;
+
+  const copyEmbed = () => {
+    navigator.clipboard.writeText(embedSnippet);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -93,7 +105,7 @@ const PublicProfile = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-[#111] border border-white/5 rounded-3xl p-6 flex flex-col justify-between shadow-lg">
             <span className="text-xs uppercase tracking-widest text-gray-400 font-bold">
               Consistency Score
@@ -122,6 +134,32 @@ const PublicProfile = () => {
               {profile.streak.longestStreak}
             </span>
           </div>
+
+          <div className="bg-[#111] border border-white/5 rounded-3xl p-6 flex flex-col justify-between shadow-lg">
+            <span className="text-xs uppercase tracking-widest text-gray-400 font-bold">
+              Total Focus Hours
+            </span>
+            <span className="text-5xl font-black tracking-tight text-cream my-4 flex items-center gap-2">
+              <ScheduleIcon className="text-cream" sx={{ fontSize: 42 }} />
+              {profile.totalFocusHours}
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-[#111] border border-white/5 rounded-2xl p-5 flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-1">
+              Embed on your GitHub README
+            </p>
+            <code className="text-[11px] text-gray-400 truncate block">{embedSnippet}</code>
+          </div>
+          <button
+            onClick={copyEmbed}
+            className="shrink-0 flex items-center gap-2 bg-cream hover:bg-white text-black font-bold text-xs rounded-full px-4 py-2 transition-all"
+          >
+            <ContentCopyIcon sx={{ fontSize: 16 }} />
+            {copied ? "Copied!" : "Copy"}
+          </button>
         </div>
 
         <Heatmap

@@ -166,6 +166,10 @@ model User {
   memoryNotes   MemoryNote[]
   learningPaths LearningPath[]
   chatMessages  ChatMessage[]
+  // User-defined life areas for the daily growth check-in (e.g. Finance,
+  // DSA, Reading) — separate from Goal because a growth area is a
+  // recurring daily habit to track, not a one-time objective to finish.
+  growthAreas GrowthArea[]
 
   @@map("users")
 }
@@ -427,6 +431,50 @@ model LearningTask {
   @@unique([pathId, dayNumber])
   @@index([pathId])
   @@map("learning_tasks")
+}
+
+// A recurring life area the user wants to grow in daily (e.g. "Finance",
+// "DSA", "Reading") — the unit behind the "did I actually grow today"
+// check-in, distinct from Goal (long-term, not necessarily daily) and Task
+// (one-off, not recurring).
+model GrowthArea {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name      String
+  // Soft-archive instead of delete so past check-ins keep their context
+  // even after a user stops tracking an area.
+  archivedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  checkIns GrowthCheckIn[]
+
+  @@unique([userId, name])
+  @@index([userId, archivedAt])
+  @@map("growth_areas")
+}
+
+// One row per day a user marks a growth area done (or logs a note against
+// it). Kept separate from WorkLogEntry because a check-in is a simple daily
+// yes/no + optional minutes/note, not a freeform work item.
+model GrowthCheckIn {
+  id           String     @id @default(uuid())
+  growthAreaId String
+  growthArea   GrowthArea @relation(fields: [growthAreaId], references: [id], onDelete: Cascade)
+
+  // "YYYY-MM-DD", UTC — same convention as WorkLogEntry.loggedDate so a
+  // retroactive check-in still lands in the right day.
+  checkedDate String
+  minutes     Int?
+  note        String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([growthAreaId, checkedDate])
+  @@index([growthAreaId, checkedDate])
+  @@map("growth_check_ins")
 }
 
 // The persisted half of the coach conversation. Storing this is what lets a
