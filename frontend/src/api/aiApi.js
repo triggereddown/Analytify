@@ -10,6 +10,12 @@ export const sendAiMessage = async (message) => {
   return data;
 };
 
+/** Resumes a chat turn that paused waiting for the user to approve/reject an action (e.g. create_goal). */
+export const respondToAiApproval = async (toolCallId, approved) => {
+  const { data } = await API.post("/ai/chat/approve", { toolCallId, approved });
+  return data;
+};
+
 /** Extracts a clean, corrected title from noisy typed/dictated slash-command text. */
 export const cleanCommandText = async (text) => {
   const { data } = await API.post("/ai/clean-command", { text });

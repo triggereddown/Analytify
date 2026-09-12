@@ -360,16 +360,52 @@ export const recallMemory = async ({
 };
 
 /**
+ * Deterministic, no-model version of the daily check-in — same facts
+ * (buildCheckInContext), same priority order the AI prompt itself is
+ * instructed to follow (burnout first, then a stalling learning path, then
+ * streak status, then a plain positive note), just templated instead of
+ * generated. This is what getDailyCheckIn falls back to if the AI call
+ * fails, and it's a genuinely correct answer, not a degraded stub — the
+ * underlying signals are already fully computed before either version
+ * ever runs.
+ */
+export const buildRuleBasedCheckIn = (context: Awaited<ReturnType<typeof buildCheckInContext>>): string => {
+  if (context.analytics.burnoutRisk === "high") {
+    return `Your burnout signal is elevated (score ${context.analytics.burnoutScore}). Consider taking a lighter day or shortening your next session.`;
+  }
+
+  if (context.staleLearningTasks.length > 0) {
+    const task = context.staleLearningTasks[0]!;
+    return `"${task.title}" from your "${task.pathTopic}" path hasn't moved in a few days. A short session today keeps it from stalling further.`;
+  }
+
+  if (context.streak.currentStreak > 0) {
+    return `You're on a ${context.streak.currentStreak}-day streak (longest: ${context.streak.longestStreak}). Keep it going with today's session.`;
+  }
+
+  return "No urgent signals today — a good time to start a fresh session or revisit an active goal.";
+};
+
+/**
  * Short proactive daily nudge. Deliberately not cached/scheduled server-side
  * yet — the frontend calls this on demand (e.g. on dashboard load) since
  * there's no notification infra in place; a real cron-based push can wrap
- * this same function later without changing the prompt contract.
+ * this same function later without changing the prompt contract. Falls
+ * back to buildRuleBasedCheckIn on any AI failure (missing/invalid key,
+ * rate limit, provider outage) so this feature never hard-fails — it just
+ * trades a warmer, model-written sentence for an equally accurate,
+ * templated one built from the same underlying signals.
  */
-export const getDailyCheckIn = async (userId: string): Promise<{ message: string }> => {
+export const getDailyCheckIn = async (userId: string): Promise<{ message: string; source: "ai" | "rules" }> => {
   const context = await buildCheckInContext(userId);
-  const systemPrompt = buildDailyCheckInPrompt(context);
-  const message = await sendToGrok([{ role: "system", content: systemPrompt }]);
-  return { message };
+
+  try {
+    const systemPrompt = buildDailyCheckInPrompt(context);
+    const message = await sendToGrok([{ role: "system", content: systemPrompt }]);
+    return { message, source: "ai" };
+  } catch {
+    return { message: buildRuleBasedCheckIn(context), source: "rules" };
+  }
 };
 
 /**

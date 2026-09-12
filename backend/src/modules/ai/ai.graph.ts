@@ -23,11 +23,11 @@ import type { AiDbContext } from "./ai.repository.js";
 // of truth for "does this call need approval".
 const TOOLS_REQUIRING_APPROVAL = new Set(["create_goal"]);
 
-const MAX_TOOL_ROUNDS = 4;
+export const MAX_TOOL_ROUNDS = 4;
 
 type ReflectionResult = { sufficient: boolean; reason: string; nextStep: string | null };
 
-const parseModelJson = <T>(raw: string, context: string): T => {
+export const parseModelJson = <T>(raw: string, context: string): T => {
   const cleaned = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
   try {
     return JSON.parse(cleaned) as T;
@@ -67,7 +67,7 @@ const ChatState = Annotation.Root({
   }),
 });
 
-type ChatGraphState = typeof ChatState.State;
+export type ChatGraphState = typeof ChatState.State;
 
 /** Runs once, before any tool calls — decides upfront what the request needs. */
 const planNode = async (state: ChatGraphState) => {
@@ -186,7 +186,7 @@ const finalizeNode = async (state: ChatGraphState) => {
 // After acting: any calls need approval -> pause there first. No tool
 // calls were made at all (finalReply already set by actNode) -> finalize.
 // Otherwise -> reflect on what was gathered from the safe calls.
-const afterAct = (state: ChatGraphState): "approveGoals" | "reflect" | "finalize" => {
+export const afterAct = (state: ChatGraphState): "approveGoals" | "reflect" | "finalize" => {
   if (state.pendingApprovals.length > 0) return "approveGoals";
   return state.finalReply !== null ? "finalize" : "reflect";
 };
@@ -194,7 +194,7 @@ const afterAct = (state: ChatGraphState): "approveGoals" | "reflect" | "finalize
 // After reflecting: sufficient, or the round cap is reached (the safety
 // net — real termination is the reflection judgment above it) -> finalize.
 // Otherwise loop back for another round of tool calls.
-const afterReflect = (state: ChatGraphState): "act" | "finalize" => {
+export const afterReflect = (state: ChatGraphState): "act" | "finalize" => {
   const lastReflection = state.reflections[state.reflections.length - 1];
   if (lastReflection?.sufficient || state.round >= MAX_TOOL_ROUNDS) return "finalize";
   return "act";

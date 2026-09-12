@@ -19,6 +19,7 @@ import learningPathRoutes from "./modules/learning-path/learningPath.routes.js";
 import growthRoutes from "./modules/growth/growth.routes.js";
 import requestLogger from "./middleware/requestLogger.middleware.js";
 import errorHandler from "./middleware/error.middleware.js";
+import { aiRateLimit, authRateLimit, generalRateLimit } from "./middleware/rateLimit.middleware.js";
 // TEACHING NOTE — src/types/express.d.ts needs NO import anywhere:
 // `.d.ts` files are pure type declarations — they produce no JavaScript
 // output and can't be imported at runtime (there's no express.js to
@@ -29,6 +30,14 @@ import errorHandler from "./middleware/error.middleware.js";
 // in the project — no explicit import required, unlike normal modules.
 
 const app = express();
+
+// Render (and most hosts) put the app behind exactly one reverse proxy.
+// Without this, express-rate-limit sees every request as coming from the
+// proxy's IP, not the real client — meaning one user hitting a limit would
+// throttle everyone. Not needed locally (no proxy in front of `npm run dev`).
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
 
 app.use(
   cors({
@@ -44,11 +53,16 @@ app.use(requestLogger);
 
 // Render (and most hosts) ping the bare root as a liveness check — without
 // this, every single check logs as a 404 since nothing else is mounted here.
+// Mounted before the rate limiter so health checks are never throttled.
 app.get("/", (_req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
-app.use("/api/auth", authRoutes);
+// Baseline limit for everything, then tighter per-router limits for
+// auth (brute-force target) and AI (expensive upstream calls) stack on top.
+app.use(generalRateLimit);
+
+app.use("/api/auth", authRateLimit, authRoutes);
 app.use("/api/pomodoro", pomodoroRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/billing", billingRoutes);
@@ -59,7 +73,7 @@ app.use("/api/export", exportRoutes);
 app.use("/api/nudges", nudgesRoutes);
 app.use("/api/streaks", streaksRoutes);
 app.use("/api/distractions", distractionsRoutes);
-app.use("/api/ai", aiRoutes);
+app.use("/api/ai", aiRateLimit, aiRoutes);
 app.use("/api/worklog", worklogRoutes);
 app.use("/api/goals", goalsRoutes);
 app.use("/api/memory", memoryRoutes);

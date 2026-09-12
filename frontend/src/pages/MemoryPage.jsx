@@ -7,6 +7,7 @@ import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import {
   archiveMemoryNote,
   captureMemoryNoteWithAi,
+  createMemoryNote,
   deleteMemoryNote,
   listMemoryNotes,
   searchMemoryNotes,
@@ -40,6 +41,12 @@ const MemoryPage = () => {
 
   const [aiContent, setAiContent] = useState("");
   const [capturing, setCapturing] = useState(false);
+  // Set only when AI capture fails (provider down, no key, etc.) — offers a
+  // manual category picker for the same text instead of losing it, using
+  // /api/memory directly (see memory.service.ts addMemoryNote, built
+  // specifically as a no-AI fallback path).
+  const [needsManualCategory, setNeedsManualCategory] = useState(false);
+  const [manualCategory, setManualCategory] = useState("idea");
   const { showToast, Toast } = useToast();
 
   const load = async () => {
@@ -79,13 +86,34 @@ const MemoryPage = () => {
     e.preventDefault();
     if (!aiContent.trim()) return;
     setCapturing(true);
+    setNeedsManualCategory(false);
     try {
       await captureMemoryNoteWithAi({ content: aiContent.trim() });
       setAiContent("");
       showToast("Note captured");
       await load();
     } catch (err) {
-      console.error("Failed to capture memory note", err);
+      console.error("Failed to capture memory note via AI, offering manual fallback", err);
+      // The AI is what infers category/tags — without it the note can still
+      // be saved, it just needs the user to pick a category. The text
+      // itself is never lost.
+      setNeedsManualCategory(true);
+    } finally {
+      setCapturing(false);
+    }
+  };
+
+  const handleManualCapture = async () => {
+    if (!aiContent.trim()) return;
+    setCapturing(true);
+    try {
+      await createMemoryNote({ content: aiContent.trim(), category: manualCategory });
+      setAiContent("");
+      setNeedsManualCategory(false);
+      showToast("Note captured");
+      await load();
+    } catch (err) {
+      console.error("Failed to capture memory note manually", err);
       showToast(getErrorMessage(err, "Couldn't capture that note."), "error");
     } finally {
       setCapturing(false);
@@ -131,13 +159,47 @@ const MemoryPage = () => {
               <form onSubmit={handleAiCapture} className="mt-4 space-y-3">
                 <FieldTextarea
                   value={aiContent}
-                  onChange={(e) => setAiContent(e.target.value)}
+                  onChange={(e) => {
+                    setAiContent(e.target.value);
+                    if (needsManualCategory) setNeedsManualCategory(false);
+                  }}
                   rows={4}
                   placeholder="Paste any thought, fact, or idea — the AI will categorize and tag it..."
                 />
-                <PrimaryButton type="submit" disabled={capturing || !aiContent.trim()} className="w-full justify-center">
-                  {capturing ? "Capturing..." : "Capture Note"}
-                </PrimaryButton>
+
+                {needsManualCategory ? (
+                  <div className="space-y-3 rounded-lg border border-white/10 p-3">
+                    <p className="text-xs leading-5 text-gray-400">
+                      AI categorization isn't available right now — pick a category to save this note anyway.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {Object.keys(CATEGORY_PILL).map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setManualCategory(cat)}
+                          className={`rounded-full border px-3 py-1 font-almarai text-[11px] uppercase tracking-[0.08em] transition-colors ${
+                            manualCategory === cat ? CATEGORY_PILL[cat] : "border-white/10 text-gray-500 hover:text-gray-300"
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                    <PrimaryButton
+                      type="button"
+                      onClick={handleManualCapture}
+                      disabled={capturing || !aiContent.trim()}
+                      className="w-full justify-center"
+                    >
+                      {capturing ? "Saving..." : "Save without AI"}
+                    </PrimaryButton>
+                  </div>
+                ) : (
+                  <PrimaryButton type="submit" disabled={capturing || !aiContent.trim()} className="w-full justify-center">
+                    {capturing ? "Capturing..." : "Capture Note"}
+                  </PrimaryButton>
+                )}
               </form>
             </Card>
 
